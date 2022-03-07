@@ -1,0 +1,5 @@
+1. post review에 userID등록. (jwt를 이용해서 userID를 가져올 수 있을 때 controller에서 등록)
+2. getReviewList에 orderBy 및 조건 삽입. (bookmark, visit, like등의 쿼리를 만든 후 삽입,
+    조건은 community 등이 정립되면 삽입)
+3. getReviewModel 작성. (frontend쪽 리뷰 보기 정해지면 작성)
+4. getCommunityModel 작성. (frontend쪽 커뮤니티 보기 정해지면 작성)

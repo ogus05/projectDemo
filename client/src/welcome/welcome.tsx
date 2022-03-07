@@ -14,7 +14,7 @@ const Welcome = () => {
     }
     
     const clickRegister = e => {
-        location.href = '/register';
+        location.href = '/user/page/register';
     }
 
     return <>

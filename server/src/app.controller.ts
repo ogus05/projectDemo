@@ -1,34 +1,19 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Render, Req, Res, UseInterceptors } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AppService } from './app.service';
+import { JWTInterceptor } from './interceptors/JWT.interceptor';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
   @Get()
-  @Render('welcome')
-  async getWelcomePage(){
+  @UseInterceptors(JWTInterceptor)
+  async getWelcomePage(@Req() req: Request, @Res() res: Response){
+    if(req.user){
+      res.render('main');
+    } else{
+      res.render('welcome');
+    }
   }
-
-  @Get('/main')
-  @Render('main')
-  async getMainPage(){
-
-  }
-
-  @Get('/user')
-  @Render('user')
-  async getUserPage(){
-  }
-
-  @Get('/community')
-  @Render('community')
-  async getCommunityPage(){
-    
-  }
-
-  @Get('/register')
-  @Render('register')
-  async getRegsterPage(){
-    
-  }
+  
 }

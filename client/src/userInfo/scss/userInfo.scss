@@ -1,0 +1,14 @@
+#user{
+    height: 200px;
+    border-bottom: 1px solid black;
+}
+
+nav {
+    text-align: center;
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    div {
+        border: 1px solid black;
+    }
+}
