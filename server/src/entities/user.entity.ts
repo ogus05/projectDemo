@@ -3,7 +3,6 @@ import { BmReview } from "./bmReview.entity";
 import { BmUser } from "./bmUser.entity";
 import { Comment } from "./comment.entity";
 import { Community } from "./community.entity";
-import { Profile } from "./profile.entity";
 import { Review } from "./review.entity";
 
 @Entity()
@@ -16,6 +15,31 @@ export class User {
     password: string;
     @Column()
     nickname: string;
+
+    @Column()
+    phone: string;
+    @Column()
+    email: string;
+    @Column({
+        default: false,
+        type: "tinyint"
+    })
+    acceptMail: boolean;
+
+
+    @Column({
+        nullable: false,
+        type: "varchar",
+        default: "default"
+    })
+    photo: string;
+    @Column({
+        nullable: true,
+        type: "text",
+    })
+    message: string;
+
+
     @CreateDateColumn({
         type: "timestamp"
     })
@@ -45,14 +69,4 @@ export class User {
     community: Community;
     @Column()
     communityID: number;
-    
-    
-    @OneToOne(() => Profile, profile => profile.ID, {
-        cascade: true,
-    })
-    @JoinColumn({name: "profileID"})
-    profile: Profile;
-    @Column()
-    profileID: number;
-
 }

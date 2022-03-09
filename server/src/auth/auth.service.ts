@@ -15,14 +15,6 @@ export class AuthService{
         private readonly config: ConfigService,
     ){}
 
-    async validateUser(userID: string, password: string){
-        const user = await this.userRepository.createQueryBuilder()
-        .where(`ID= :userID`, {userID})
-        .andWhere(`password= :userPassword`, {userPassword: password})
-        .getOne();
-        return user;
-    }
-
     handleRefreshToken(){
         const issueToken = async user => {
             const payload = { userID: user.userID, sub: user.nickname};
@@ -51,7 +43,8 @@ export class AuthService{
         //Refresh토큰 Validation시 DB와 쿠키에 있는 Refresh토큰 비교.
         //같으면 true 및 user값, 틀리면 false 반환.
         const compareToken = async (user, token) => {
-            const tokenFromDB = await this.userRepository.createQueryBuilder()
+            const tokenFromDB = await this.userRepository.createQueryBuilder('user')
+            .select('user.refreshJWT')
             .where(`ID = :userID`, {userID: user.userID})
             .getOne();
             if(!tokenFromDB) return false;

@@ -9,6 +9,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ReviewModule } from './review/review.module';
 import { CommunityModule } from './community/community.module';
+import { MulterModule } from '@nestjs/platform-express';
+import {diskStorage} from 'multer'
 
 @Module({
   imports: [

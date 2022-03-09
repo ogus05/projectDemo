@@ -17,7 +17,7 @@ export class Community{
     })
     leader: User;
     @Column({
-        type: "mediumblob",
+        type: "varchar",
         nullable: true,
     })
     mark: string;

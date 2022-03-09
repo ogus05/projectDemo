@@ -17,7 +17,7 @@ export class CommunityController {
     @UseGuards(JwtAuthGuard)
     async getCommunityInfoPage(@Req() req: Request, @Res() res: Response){
         try{
-            const user = await this.userService.getUserByID(req.user.userID);
+            const user = await this.userService.getUserByID(req.user.userID, false, false);
             const userCommunityID = (user?.communityID) ? user?.communityID : 1;
             if(req.params.ID){
                 res.render('communityInfo', {
@@ -67,7 +67,7 @@ export class CommunityController {
     @UseGuards(JwtAuthGuard)
     async postCommunity(@Body() body: PostCommunityDto, @Req() req: Request, @Res() res: Response){
         try{
-            const user = await this.userService.getUserByID(req.user.userID);
+            const user = await this.userService.getUserByID(req.user.userID, false, true);
             if(user.communityID !== 1) {
                 throw new Error("가입한 커뮤니티가 존재합니다.");
             } else{

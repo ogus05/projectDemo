@@ -12,7 +12,7 @@ const UserInfo = () => {
         <Header />
         <div id="user">
             <div>{nickname}님 안녕하세요!</div>
-            <div>개인정보 수정하기</div>
+            <button onClick={e => (location.href = "/user/page/edit")}>개인정보 수정하기</button>
             <div>가입 커뮤니티 정보 확인</div>
         </div>
         <nav>

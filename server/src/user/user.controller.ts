@@ -1,13 +1,17 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Post, Render, Req, Res, UseGuards } from "@nestjs/common";
-import { Request } from "express";
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpException, HttpStatus, Patch, Post, Put, Render, Req, Res, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { AnyFilesInterceptor, FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
+import { Request, Response } from "express";
+import { AuthService } from "src/auth/auth.service";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
-import { PostUserDto } from "./dto/user.dto";
+import { PostUserDto, UpdateUserDto } from "./dto/user.dto";
 import { UserService } from "./user.service";
 
 @Controller('user')
 export class UserController{
     constructor(
-        private userService: UserService
+        private userService: UserService,
+        private configService: ConfigService
     ){}
 
     @Get('/page/register')
@@ -33,19 +37,61 @@ export class UserController{
     @UseGuards(JwtAuthGuard)
     async getUserEditPage(){}
 
+    @Get('/page/cancle')
+    @Render('userCancle')
+    @UseGuards(JwtAuthGuard)
+    async getUserCanclePage(){}
+
     @Post()
-    async postUser(@Body() postUserDto: PostUserDto){
+    async postUser(@Body() body: PostUserDto){
         try{
-        if(await this.userService.getUserByID(postUserDto.ID)){
-            throw new HttpException("duplicate ID", HttpStatus.BAD_REQUEST);
-        }
-        await this.userService.createUser(postUserDto);
+            if(await this.userService.getUserByID(body.ID, false, false)){
+                throw new HttpException("duplicate ID", HttpStatus.BAD_REQUEST);
+            }
+            await this.userService.createUser(body);
         } catch(e){
-            console.log(e);
-            throw new HttpException("잠시 후 다시 시도해주세요.", 500);
+            if(e instanceof HttpException) throw e;
+            else{
+                console.log(e);
+                throw new HttpException("잠시 후 다시 시도해주세요.", 500);
+            }
         }
-        
     }
 
+    @Put()
+    @HttpCode(201)
+    @UseGuards(JwtAuthGuard)
+    async putUser(@Body() body: UpdateUserDto, @Req() req: Request, @Res() res: Response){
+        try{
+            body.ID = req.user.userID;
+            await this.userService.updateUser(body);
+            res.send();
+        } catch(e){
+            if(e instanceof HttpException) throw e;
+            else{
+                console.log(e);
+                throw new HttpException("잠시 후 다시 시도해주세요.", 500);
+            }
+        }
+    }
 
+    @Put()
+    @HttpCode(201)
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('photo'))
+    async putUserImage(@UploadedFile() photo: Express.Multer.File, @Req() req: Request, @Res() res: Response){
+        try{
+            
+            await this.userService.updateUserImage(req.user.userID, photo.filename);
+            res.send();
+        } catch(e){
+            if(e instanceof HttpException) throw e;
+            else {
+                console.log(e)
+                throw new HttpException('잠시 후 다시 시도해주세요.', 500);
+            }
+        }
+
+
+    }
 }

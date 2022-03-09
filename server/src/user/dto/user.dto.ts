@@ -3,12 +3,33 @@ export class PostUserDto {
     @IsString()
     ID: string;
     @IsString()
+    password: string;
+    @IsString()
     nickname: string;
     @IsString()
-    password: string;
+    phone: string;
     @IsEmail()
     email: string;
-    acceptMail: boolean;
+    @IsString()
+    message: string;
+}
+
+export class UpdateUserDto{
+    ID: string;
+    @IsString()
+    nickname: string;
+    @IsEmail()
+    email: string;
     @IsString()
     phone: string;
+    @IsString()
+    message: string;
+}
+
+
+export class UpdatePasswordDto{
+    @IsString()
+    password: string;
+    @IsString()
+    newPassword: string;
 }
