@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const UserCancle = () => {
+const UserDelete = () => {
     return <>
         
     </>
 }
 
-ReactDOM.render(<UserCancle/>, document.querySelector("#main"));
+ReactDOM.render(<UserDelete/>, document.querySelector("#main"));

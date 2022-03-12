@@ -1,9 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Body, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Community } from "src/entities/community.entity";
 import { User } from "src/entities/user.entity";
 import { Connection, getConnection, getManager, Repository } from "typeorm";
-import { PostUserDto, UpdateUserDto } from "./dto/user.dto";
+import { PostUserDto, PutPasswordDto, PutUserDto } from "./dto/user.dto";
 import * as fs from "fs";
 import { ConfigService } from "@nestjs/config";
 @Injectable()
@@ -16,6 +15,7 @@ export class UserService{
     ){}
 
 
+    //여러 곳에서 사용하기 때문에 처리를 다양하게 하기 위해 user가 없을 때 exception을 넣지 않음.
     async validateUser(userID: string, password: string){
         const user = await this.userRepository.createQueryBuilder()
         .where(`ID= :userID`, {userID})
@@ -24,12 +24,12 @@ export class UserService{
         return user;
     }
     
-    async getUserByID(userID: string, community: boolean, profile: boolean){
+    async getUserByID(userID: string, community: boolean, info: boolean){
         try{
             let qb = this.userRepository.createQueryBuilder(`user`)
-            .select(['user.nickname', 'user.regDate', 'user.profileID', 'user.communityID']);
-            if(profile) qb = qb.leftJoinAndSelect('user.profile', 'profile');
+            .select(['user.nickname', 'user.communityID']);
             if(community) qb = qb.leftJoinAndSelect('user.community', 'community');
+            if(info) qb = qb.addSelect(['user.phone', 'user.email', 'user.acceptMail', 'user.image', 'user.message']);
             const user = await qb.where(`user.ID = :keyID`, {keyID: userID})
             .getOne();
             return user;
@@ -40,11 +40,14 @@ export class UserService{
     }
 
     async createUser(dto: PostUserDto){
+        if(await this.getUserByID(dto.ID, false, false)){
+            throw new BadRequestException("존재하는 아이디입니다.");
+        }
         const user = this.userRepository.create(dto);
         await this.userRepository.save(user);
     }
 
-    async updateUser(dto: UpdateUserDto){
+    async updateUser(dto: PutUserDto){
         await this.userRepository.update(dto.ID, {
             nickname: dto.nickname,
             email: dto.email,
@@ -53,19 +56,38 @@ export class UserService{
         });
     }
 
-    async updateUserImage(userID: string, filename: string){
-        if(filename !== "default.jpg"){
-            const user = this.userRepository.createQueryBuilder('user')
-            .select('user.photo')
-            .where('ID = :keyID', {keyID: userID}).getOne();
-            if(fs.readFileSync(this.configService.get("MULTER_DEST")))
-            //파일은 이미 올라간 상태. userID를 이용해서 파일을 불러올 때 오류가 발생하면 올라간 파일 처리를 어떻게하지
-            // -> 올라간 파일을 여기서 filename을 이용해서 지우는 것도 괜찮을 것 같다.
-        }
-
+    async updateUserImage(userID: string, filename: string = this.configService.get("USER_IMAGE")){
+        await this.deleteImage(userID);
         await this.userRepository.update(userID, {
-            photo: filename
+            image: filename
+        });
+    }
+
+    async updateUserPassword(dto: PutPasswordDto){
+        if(!(await this.validateUser(dto.ID, dto.password))){
+            throw new BadRequestException("비밀번호가 정확하지 않습니다.");
+        }
+        await this.userRepository.update(dto.ID, {
+            password: dto.newPassword,
         });
     }
     
+    async deleteUser(userID: string){
+        await this.deleteImage(userID);
+        await this.userRepository.delete(userID);
+    }
+
+    async deleteImage(userID: string){
+        const DBfilename = (await this.userRepository.createQueryBuilder('user')
+        .select(['user.image'])
+        .where('ID = :keyID', {keyID: userID}).getOne()).image;
+        if(DBfilename !== this.configService.get("USER_IMAGE")){
+            const DBfileDir = this.configService.get("MULTER_DEST") + DBfilename;
+            if(fs.existsSync(DBfileDir)){
+                fs.rm(DBfileDir, () => {});
+            } else{
+                console.log("파일이 존재하지 않아서 삭제가 불가능합니다. " + this.configService.get("MULTER_DEST") + DBfilename);
+            }
+        }
+    }
 }

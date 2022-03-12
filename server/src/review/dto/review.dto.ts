@@ -1,23 +1,12 @@
 import { IsEnum, IsNumber, IsString, Max, Min } from "class-validator";
 import { User } from "src/entities/user.entity";
 
-export enum GetReviewListOrderByEnum{
-    visit= 'visit',
-    like= 'like',
-    bookmark = 'bookmark',
-
-}
 
 export class GetReviewListDto{
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    limit: number;
-    @IsNumber()
-    @Min(0)
-    offset: number;
-    @IsEnum(GetReviewListOrderByEnum)
-    orderBy: GetReviewListOrderByEnum;
+    limit: string;
+    offset: string;
+    orderBy: string;
+    where: string;
 }
 
 

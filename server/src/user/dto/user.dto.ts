@@ -14,7 +14,7 @@ export class PostUserDto {
     message: string;
 }
 
-export class UpdateUserDto{
+export class PutUserDto{
     ID: string;
     @IsString()
     nickname: string;
@@ -27,7 +27,8 @@ export class UpdateUserDto{
 }
 
 
-export class UpdatePasswordDto{
+export class PutPasswordDto{
+    ID: string
     @IsString()
     password: string;
     @IsString()

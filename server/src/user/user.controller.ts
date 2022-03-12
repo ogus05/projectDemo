@@ -1,16 +1,18 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpException, HttpStatus, Patch, Post, Put, Render, Req, Res, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Put, Render, Req, Res, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AnyFilesInterceptor, FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
 import { AuthService } from "src/auth/auth.service";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
-import { PostUserDto, UpdateUserDto } from "./dto/user.dto";
+import { CommunityService } from "src/community/community.service";
+import { PostUserDto, PutPasswordDto, PutUserDto } from "./dto/user.dto";
 import { UserService } from "./user.service";
 
 @Controller('user')
 export class UserController{
     constructor(
         private userService: UserService,
+        private readonly communityService: CommunityService,
         private configService: ConfigService
     ){}
 
@@ -37,61 +39,64 @@ export class UserController{
     @UseGuards(JwtAuthGuard)
     async getUserEditPage(){}
 
-    @Get('/page/cancle')
+    @Get('/page/delete')
     @Render('userCancle')
     @UseGuards(JwtAuthGuard)
     async getUserCanclePage(){}
 
+    @Get()
+    @Get(':ID')
+    @UseGuards(JwtAuthGuard)
+    async getUser(@Param('ID') ID: string, @Req() req: Request, @Res() res: Response){
+        if(ID === undefined) ID = req.user.userID;
+        const user = await this.userService.getUserByID(ID, false, false);
+        if(!user) throw new BadRequestException("존재하지 않는 유저입니다.");
+        res.send(user);
+    }
+
     @Post()
     async postUser(@Body() body: PostUserDto){
-        try{
-            if(await this.userService.getUserByID(body.ID, false, false)){
-                throw new HttpException("duplicate ID", HttpStatus.BAD_REQUEST);
-            }
-            await this.userService.createUser(body);
-        } catch(e){
-            if(e instanceof HttpException) throw e;
-            else{
-                console.log(e);
-                throw new HttpException("잠시 후 다시 시도해주세요.", 500);
-            }
-        }
+        await this.userService.createUser(body);
     }
 
     @Put()
     @HttpCode(201)
     @UseGuards(JwtAuthGuard)
-    async putUser(@Body() body: UpdateUserDto, @Req() req: Request, @Res() res: Response){
-        try{
-            body.ID = req.user.userID;
-            await this.userService.updateUser(body);
-            res.send();
-        } catch(e){
-            if(e instanceof HttpException) throw e;
-            else{
-                console.log(e);
-                throw new HttpException("잠시 후 다시 시도해주세요.", 500);
-            }
-        }
+    async putUser(@Body() body: PutUserDto, @Req() req: Request, @Res() res: Response){
+        body.ID = req.user.userID;
+        await this.userService.updateUser(body);
+        res.send();
     }
 
-    @Put()
+    @Put('image')
     @HttpCode(201)
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('photo'))
-    async putUserImage(@UploadedFile() photo: Express.Multer.File, @Req() req: Request, @Res() res: Response){
-        try{
-            
-            await this.userService.updateUserImage(req.user.userID, photo.filename);
-            res.send();
-        } catch(e){
-            if(e instanceof HttpException) throw e;
-            else {
-                console.log(e)
-                throw new HttpException('잠시 후 다시 시도해주세요.', 500);
-            }
-        }
+    @UseInterceptors(FileInterceptor('image'))
+    async putUserImage(@UploadedFile() image: Express.Multer.File, @Req() req: Request, @Res() res: Response){
+        await this.userService.updateUserImage(req.user.userID, image.filename);
+        res.send();
+    }
 
+    @Put('password')
+    @HttpCode(201)
+    @UseGuards(JwtAuthGuard)
+    async putUserPassword(@Body() body: PutPasswordDto, @Req() req: Request, @Res() res: Response){
+        body.ID = req.user.userID;
+        await this.userService.updateUserPassword(body);
+        res.send();
+    }
 
+    @Delete()
+    @UseGuards(JwtAuthGuard)
+    async deleteUser(@Req() req: Request, @Res() res: Response){
+        await this.userService.deleteUser(req.user.userID);
+        res.send();
+    }
+
+    @Delete('community')
+    @UseGuards(JwtAuthGuard)
+    async deleteCommunity(@Req() req: Request, @Res() res: Response){
+        await this.communityService.updateCommunityUser(req.user.userID);
+        res.send();
     }
 }

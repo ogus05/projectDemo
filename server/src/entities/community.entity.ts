@@ -16,14 +16,20 @@ export class Community{
         name: "leaderID",
     })
     leader: User;
+
+    @Column({
+        name: "string"
+    })
+    leaderID: string;
     @Column({
         type: "varchar",
-        nullable: true,
+        default: 'community_default.jpg',
     })
-    mark: string;
+    image: string;
     @Column({
         type: "tinyint",
         nullable: false,
+        default: false,
     })
     isOpen: boolean;
     @Column({
@@ -35,6 +41,13 @@ export class Community{
         type:"datetime",
     })
     regDate: Date;
+
+    //커뮤니티 정보를 가져올 때 마다 유저 수를 호출해야 하는데 이걸 서브쿼리 써서 호출하게 되면
+    //너무 비효율적이지 않을까
+    @Column({
+        default: 0,
+    })
+    userCount: number;
 
     @OneToMany(() => User, user => user.community)
     user: User[];

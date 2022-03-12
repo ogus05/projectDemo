@@ -6,10 +6,12 @@ import { UserService } from "./user.service";
 import { MulterModule } from "@nestjs/platform-express";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import {diskStorage} from "multer";
+import { CommunityService } from "src/community/community.service";
+import { Community } from "src/entities/community.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, Community]),
         MulterModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
@@ -22,9 +24,9 @@ import {diskStorage} from "multer";
                 })
             }),
             inject: [ConfigService]
-        })
+        }), 
     ],
-    providers: [UserService],
+    providers: [UserService, CommunityService],
     exports: [UserService],
     controllers: [UserController]
 })

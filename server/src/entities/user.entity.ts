@@ -1,3 +1,4 @@
+import { ConfigService } from "@nestjs/config";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { BmReview } from "./bmReview.entity";
 import { BmUser } from "./bmUser.entity";
@@ -30,9 +31,9 @@ export class User {
     @Column({
         nullable: false,
         type: "varchar",
-        default: "default"
+        default: "user_default.jpg",
     })
-    photo: string;
+    image: string;
     @Column({
         nullable: true,
         type: "text",

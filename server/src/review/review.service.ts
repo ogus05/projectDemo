@@ -12,29 +12,22 @@ export class ReviewService{
     ){}
 
     async getReviewByID(reviewID: number){
-        try{
-            const res = await this.reviewRepository.createQueryBuilder()
-            .where(`ID = :reviewID`, {reviewID})
-            .getOne();
-            if(!res) throw new Error();
-            else return res;
-        } catch(e){
-            throw e;
-        }
+        const review = await this.reviewRepository.createQueryBuilder('review')
+        .select(["review.title", "review.text", "review.visit", "review.userID", "review.book_title",
+        "review.book_cover", "review.book_author"])
+        .where("ID = :keyReviewID", {keyReviewID: reviewID})
+        .getOne();
+        return review;
     }
 
     async getReviewList(dto: GetReviewListDto){
-        try{
-            const res = await this.reviewRepository.createQueryBuilder()
-            .limit(dto.limit)
-            .offset(dto.offset)
-            .getMany();
-            if(res.length > 0) return res;
-            else throw new Error();
-        } catch(e){
-            console.log(e);
-            throw e;
-        }
+        const reviewList = await this.reviewRepository.createQueryBuilder()
+        .select(["review.title", "review.visit", "review.userID", "review.book_title", "review.book_cover"])
+        .limit(dto.limit)
+        .offset(dto.offset)
+        .orderBy(dto.orderBy)
+        .getMany();
+        return reviewList;
     }
 
     async postReview(dto: PostReviewDto){
