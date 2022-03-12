@@ -3,9 +3,9 @@ import { User } from "src/entities/user.entity";
 
 
 export class GetReviewListDto{
-    limit: string;
-    offset: string;
-    orderBy: string;
+    limit: number;
+    offset: number;
+    orderBy: "regDate" ;
     where: string;
 }
 
