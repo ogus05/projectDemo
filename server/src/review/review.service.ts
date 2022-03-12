@@ -23,8 +23,8 @@ export class ReviewService{
     async getReviewList(dto: GetReviewListDto){
         const reviewList = await this.reviewRepository.createQueryBuilder()
         .select(["review.title", "review.visit", "review.userID", "review.book_title", "review.book_cover"])
-        .limit(dto.limit)
-        .offset(dto.offset)
+        .limit(dto.limit as number)
+        .offset(dto.offset as number)
         .orderBy(dto.orderBy)
         .getMany();
         return reviewList;
