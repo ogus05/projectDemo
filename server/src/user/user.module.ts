@@ -8,10 +8,13 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import {diskStorage} from "multer";
 import { CommunityService } from "src/community/community.service";
 import { Community } from "src/entities/community.entity";
+import { MailModule } from "src/mail/mail.module";
+import { MailService } from "src/mail/mail.service";
+import { ConfirmMail } from "src/entities/confirmMail";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Community]),
+        TypeOrmModule.forFeature([User, Community, ConfirmMail]),
         MulterModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
@@ -24,9 +27,9 @@ import { Community } from "src/entities/community.entity";
                 })
             }),
             inject: [ConfigService]
-        }), 
+        }),
     ],
-    providers: [UserService, CommunityService],
+    providers: [UserService, MailService],
     exports: [UserService],
     controllers: [UserController]
 })

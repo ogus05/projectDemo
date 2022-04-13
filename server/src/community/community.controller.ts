@@ -1,10 +1,10 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Render, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Redirect, Render, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { UserService } from 'src/user/user.service';
 import { CommunityService } from './community.service';
-import { GetCommunityListDto, PostCommunityDto, PutCommunityDto } from './dto/community.dto';
+import { ApplyCommunityDto, GetCommunityListDto, PostCommunityDto, PutCommunityDto } from './dto/community.dto';
 import { LeaderGuard } from './leader.guard';
 
 @Controller('community')
@@ -15,29 +15,28 @@ export class CommunityController {
     ) {}
 
     @Get('/page/info')
+    @UseGuards(JwtAuthGuard)
+    async redirectCommunityInfoPage(@Req() req: Request, @Res() res: Response){
+        res.redirect('/community/page/info/0');
+    }
+
     @Get('/page/info/:ID')
     @UseGuards(JwtAuthGuard)
     async getCommunityInfoPage(@Req() req: Request, @Res() res: Response){
         try{
-            const user = await this.userService.getUserByID(req.user.userID, false, false);
-            const userCommunityID = (user?.communityID) ? user?.communityID : 1;
-            if(req.params.ID){
+            if(req.params.ID === "0" || isNaN(parseInt(req.params.ID))){
+                const user = await this.userService.getUserByID(req.user.userID, false, false);
                 res.render('communityInfo', {
-                    communityID: req.params.ID,
-                    userCommunityID
+                    communityID: user.communityID,
                 });
             } else{
                 res.render('communityInfo', {
-                    communityID: userCommunityID,
-                    userCommunityID: userCommunityID
+                    communityID: req.params.ID,
                 })
             }
         } catch(e){
             console.log("getCommunityInfoPage. " + e);
-            res.render('communityInfo', {
-                communityID: req.params.ID,
-                userCommunityID: 1,
-            });
+            res.redirect("/");
         }
     }
 
@@ -55,27 +54,38 @@ export class CommunityController {
         
     }
 
-    @Get(':ID')
+    @Get('/page/edit')
+    @Render('communityEdit')
     @UseGuards(JwtAuthGuard)
-    async getCommunity(@Param('ID') id: number, @Req() req: Request, @Res() res: Response){
-        const community = await this.communityService.getCommunityByID(id);
-        if(!community) throw new BadRequestException("존재하지 않는 커뮤니티입니다."); 
-        res.send(community);
+    async getCommunityEditPage(){
     }
-
-    @Get('/list')
+    //TODO
+    @Get('list')
     @UseGuards(JwtAuthGuard)
     async getCommunityList(@Query("offset") offset: number, @Query("limit") limit: number, 
             @Query("orderby") orderBy: string, @Req() req: Request, @Res() res: Response){
         const dto: GetCommunityListDto = {offset, limit, orderBy};
+    }
 
-    }   
+    @Get('leader')
+    @UseGuards(JwtAuthGuard, LeaderGuard)
+    async getLeader(@Req() req: Request, @Res() res: Response){
+        res.send({communityID: req.user.community.ID});
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard)
     async postCommunity(@Body() body: PostCommunityDto, @Req() req: Request, @Res() res: Response){
         body.leaderID = req.user.userID;
         await this.communityService.createCommunity(body);
+        res.send();
+    }
+
+    @Post('apply')
+    @UseGuards(JwtAuthGuard)
+    async applyCommunity(@Body() body: ApplyCommunityDto, @Req() req: Request, @Res() res: Response){
+        body.userID = req.user.userID;
+        await this.communityService.applyCommunity(body);
         res.send();
     }
 
@@ -94,6 +104,7 @@ export class CommunityController {
     @UseGuards(JwtAuthGuard, LeaderGuard)
     async putCommunity(@Body() body: PutCommunityDto, @Req() req: Request, @Res() res: Response){
         body.ID = req.user.community.ID;
+        console.log(body);
         await this.communityService.updateCommunity(body);
         res.send();
     }
@@ -109,8 +120,8 @@ export class CommunityController {
 
     @Put('leader')
     @UseGuards(JwtAuthGuard, LeaderGuard)
-    async putCommunityLeader(@Body() body: string, @Req() req: Request, @Res() res: Response){
-        await this.communityService.updateCommunityLeader(req.user.community.ID, body);
+    async putCommunityLeader(@Body('userID') delegatedUser: string, @Req() req: Request, @Res() res: Response){
+        await this.communityService.updateCommunityLeader(req.user.community.ID, delegatedUser);
         res.send();
     }
 
@@ -124,12 +135,32 @@ export class CommunityController {
 
     @Delete('user')
     @UseGuards(JwtAuthGuard, LeaderGuard)
-    async deleteCommunityUser(@Body() body: string, @Req() req: Request, @Res() res: Response){
-        const communityUser = await this.userService.getUserByID(body, false, false);
+    async deleteCommunityUser(@Body() body, @Req() req: Request, @Res() res: Response){
+        const communityUser = await this.userService.getUserByID(body.userID, false, false);
         if(communityUser.communityID !== req.user.community.ID){
             throw new BadRequestException("다른 커뮤니티의 유저를 제명시킬 수 없습니다.");
         }
-        await this.communityService.updateCommunityUser(body);
+        await this.communityService.updateCommunityUser(body.userID);
         res.send();
+    }
+
+    @Delete('user2')
+    @UseGuards(JwtAuthGuard)
+    async deleteCommunityUser2(@Req() req: Request, @Res() res: Response){
+        const user = await this.userService.getUserByID(req.user.userID, false, false);
+        if(user.communityID === 1){
+            throw new BadRequestException("커뮤니티에 가입되어있지 않습니다.");
+        } else{
+            await this.communityService.updateCommunityUser(user.ID);
+            res.send();
+        }
+    }
+
+    @Get(':ID')
+    @UseGuards(JwtAuthGuard)
+    async getCommunity(@Param('ID') id: number, @Req() req: Request, @Res() res: Response){
+        const community = await this.communityService.getCommunityByID(id);
+        if(!community) throw new BadRequestException("존재하지 않는 커뮤니티입니다."); 
+        res.send(community);
     }
 }

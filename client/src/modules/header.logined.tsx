@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react';
 import './scss/header.logined.scss';
 import jwtInterceptor from './ts/jwtInterceptor';
@@ -5,13 +6,13 @@ import jwtInterceptor from './ts/jwtInterceptor';
 const Header = () => {
     const clickLogout = e => {
         e.preventDefault();
-        jwtInterceptor.delete('/auth')
+        axios.delete('/auth')
         .then(res => {
             location.href = '/';
         }).catch(err => {
-            console.log(err);
+            alert(err.response.data.message);
             location.href = '/';
-        })
+        }) 
     }
 
     const clickMyPage = e => {

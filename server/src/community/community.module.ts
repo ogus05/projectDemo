@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ApplyCommunity } from 'src/entities/applyCommunity';
 import { Community } from 'src/entities/community.entity';
 import { User } from 'src/entities/user.entity';
 import { UserModule } from 'src/user/user.module';
-import { UserService } from 'src/user/user.service';
 import { CommunityController } from './community.controller';
 import { CommunityService } from './community.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Community, User])
+        TypeOrmModule.forFeature([Community, User, ApplyCommunity]),
+        UserModule
       ],
     controllers: [CommunityController],
     exports: [CommunityService],
-    providers: [CommunityService, UserService],
+    providers: [CommunityService],
 })
 export class CommunityModule {}

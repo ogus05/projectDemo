@@ -4,9 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Community } from 'src/entities/community.entity';
 import { User } from 'src/entities/user.entity';
 import { Connection, QueryResult, Repository } from 'typeorm';
-import { GetCommunityListDto, PostCommunityDto, PutCommunityDto } from './dto/community.dto';
+import { ApplyCommunityDto, GetCommunityListDto, PostCommunityDto, PutCommunityDto } from './dto/community.dto';
 import * as fs from "fs"
 import { UserService } from 'src/user/user.service';
+import { ApplyCommunity } from 'src/entities/applyCommunity';
 
 @Injectable()
 export class CommunityService {
@@ -15,6 +16,8 @@ export class CommunityService {
         private readonly communityRepository: Repository<Community>,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(ApplyCommunity)
+        private readonly applyCommunityRepository: Repository<ApplyCommunity>,
         private readonly userService: UserService,
         private readonly configService: ConfigService,
         private readonly connection: Connection
@@ -55,14 +58,18 @@ export class CommunityService {
         .where("communityID = :keyCommunityID", )
     }
 
+    async getCommunityApplyUserList(communityID: number){
+        const users = (await this.applyCommunityRepository.find({
+            communityID
+        })).map(v => v.user);
+        return users;
+    }
+
     async createCommunity(dto: PostCommunityDto){
         if(await this.getCommunityByName(dto.name)){
             throw new BadRequestException("존재하는 커뮤니티 이름입니다.");
         }
         const user = await this.userService.getUserByID(dto.leaderID, false, false);
-        if(!user){
-            throw new BadRequestException("존재하지 않는 유저입니다.");
-        }
         if(user.communityID !== 1) {
             throw new BadRequestException("가입한 커뮤니티가 존재합니다.");
         }
@@ -86,6 +93,19 @@ export class CommunityService {
         } finally{
             await qr.release();
         }
+    }
+
+    async applyCommunity(dto: ApplyCommunityDto){
+        if((await this.userService.getUserByID(dto.userID, false, false)).communityID !== 1){
+            throw new BadRequestException("이미 커뮤니티에 가입했습니다.");
+        }
+        await this.applyCommunityRepository.delete({
+            userID: dto.userID
+        });
+        await this.applyCommunityRepository.insert({
+            communityID: dto.ID,
+            userID: dto.userID,
+        });
     }
 
     async updateCommunity(dto: PutCommunityDto){
@@ -116,6 +136,14 @@ export class CommunityService {
     }
 
     async updateCommunityUser(userID: string, communityID: number = 1){
+        if(communityID !== 1){
+            const applyCommunity = await this.applyCommunityRepository.findOne({
+                userID, communityID
+            });
+            if(!applyCommunity){
+                throw new BadRequestException("가입하려는 유저의 요청이 필요합니다.");
+            }
+        }
         if((await this.getCommunityByID(communityID)).leaderID === userID){
             throw new BadRequestException("리더는 커뮤니티를 탈퇴할 수 없습니다.");
         }
@@ -127,8 +155,8 @@ export class CommunityService {
     async deleteCommunity(communityID: number){
         const qr = this.connection.createQueryRunner();
         try{
-            await qr.startTransaction();
             await this.deleteImage(communityID);
+            await qr.startTransaction();
             await qr.manager.getRepository(User)
             .createQueryBuilder()
             .update(User)
@@ -137,9 +165,7 @@ export class CommunityService {
             .execute();
 
             await qr.manager.getRepository(Community).delete(communityID);
-
             await qr.commitTransaction();
-
         } catch(e){
             console.log("deleteCommunity: \n" + e);
             await qr.rollbackTransaction();

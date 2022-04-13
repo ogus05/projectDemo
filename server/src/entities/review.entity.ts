@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from "./comment.entity";
+import { Community } from "./community.entity";
 import { User } from "./user.entity";
 
 @Entity()
@@ -7,31 +8,42 @@ export class Review{
     @PrimaryGeneratedColumn()
     ID: number;
     @Column()
+    category: string;
+    @Column()
     title: string;
     @Column()
     text: string;
+
+    @ManyToOne(() => User)
+    @JoinColumn({name: "userID"})
+    user: User;
+    @Column()
+    userID: string;
+
+    @ManyToOne(() => Community)
+    @JoinColumn({ name: "communityID"})
+    community: Community;
+    @Column({
+        nullable: false,
+    })
+    communityID: number;
+
     @Column({
         default: 0,
     })
     visit: number;
-    @ManyToOne(() => User)
-    @JoinColumn({
-        name: "userID"
+    @Column({
+        name: "isbn",
+        nullable: false,
     })
-    user: User;
-    @OneToMany(() => Comment, comment => comment.review)
-    comment: Comment[];
+    ISBN: string;
     
-    @Column({
-        name: "book_title",
+    @CreateDateColumn({
+        name: "regDate"
     })
-    bookTitle: string;
-    @Column({
-        name: "book_cover",
-    })
-    bookCover: string;
-    @Column({
-        name: "book_author"
-    })
-    bookAuthor: string;
+    regDate: Date;
+
+    @OneToMany(() => Comment, comment => comment.review)
+    comment: Comment;
+
 }

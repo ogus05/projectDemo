@@ -35,7 +35,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy,'refreshJWT'){
             throw new RefreshTokenException('다른 사용자가 로그인하였습니다.');
         } else{
             if(payload.exp * 1000 < Date.now()){
-                throw new RefreshTokenException();
+                throw new RefreshTokenException('로그인 후 이용 가능합니다.');
             }
             return user;
         }

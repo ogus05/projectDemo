@@ -12,36 +12,27 @@ const Register = () => {
     const [nickname, setNickname] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [modal2IsOpen, setModal2IsOpen] = useState(false);
 
     const submitRegister = e => {
         e.preventDefault();
+        //비밀번호 조건은 클라이언트에서 체크.
         if(password !== confirmPassword){
-            //수정 있어야 함
             alert("비밀번호 확인이 같지 않습니다.");
             setPassword(''); setConfirmPassword('');
         } else{
-            setPassword(passwordEncryptor(password, ID));
             axios.post('/user',{
-                ID, nickname, password, email, phone
+                ID, nickname, password : passwordEncryptor(password, ID),
             }, {
                 validateStatus: status => status < 500,
             }).then(res => {
                 if(res.status === 201){
                     setModal2IsOpen(true);
                 } else{
-                    //수정 있어야 함
                     alert(res.data.message);
                     setPassword(''); setConfirmPassword('');
                 }
-            }).catch(err => {
-                //수정 있어야 함
-                console.log(err);
-                alert("잠시 후 다시 시도해주세요.");
-                location.reload();
-            })
+            });
         }
     }
 
@@ -65,16 +56,6 @@ const Register = () => {
             <label>
                 <p>닉네임: </p>
                 <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} /><br/>
-            </label>
-            <label>
-                <p>이메일: </p>
-                <input type="text" value={email} onChange={e => setEmail(e.target.value)}
-                    placeholder="example@reader.com"/><br/>
-            </label>
-            <label>
-                <p>전화 번호: </p>
-                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
-                    placeholder="010-0000-0000"/><br/>
             </label>
             <br /><label>
                 <input type="submit" value="가입하기" />

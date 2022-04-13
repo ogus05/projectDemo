@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from "./comment.entity";
 import { User } from "./user.entity";
 
@@ -6,10 +6,16 @@ import { User } from "./user.entity";
 export class LikeComment{
     @PrimaryGeneratedColumn()
     ID: number;
+
     @ManyToOne(() => Comment)
-    @JoinColumn()
-    comment: Comment;
+    @JoinColumn({name: "commentID"})
+    comment: Comment
+    @Column()
+    commentID: number;
+
     @ManyToOne(() => User)
-    @JoinColumn()
+    @JoinColumn({name: "userID"})
     user: User;
+    @Column()
+    userID: string;
 }

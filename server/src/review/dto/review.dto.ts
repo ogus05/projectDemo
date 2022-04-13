@@ -1,30 +1,41 @@
 import { IsEnum, IsNumber, IsString, Max, Min } from "class-validator";
 import { User } from "src/entities/user.entity";
 
-
 export class GetReviewListDto{
     limit: number;
     offset: number;
-    orderBy: "regDate" ;
+    orderBy: string;
     where: string;
 }
 
 
 export class PostReviewDto{
     @IsString()
+    category: string;
+    @IsString()
     title: string;
     @IsString()
     text: string;
-    @IsString()
-    bookTitle: string;
-    @IsString()
-    bookCover: string;
-    @IsString()
-    bookAuthor: string;
+    @IsNumber()
+    ISBN: string;
 
-    user: User;
+    userID: string;
 }
 
-export class GetReviewModel{
-    
+export class PutReviewDto{
+    @IsNumber()
+    reviewID: number;
+    @IsString()
+    title: string;
+    @IsString()
+    text: string;
+
+    userID: string;
+}
+
+export class DeleteReviewDto{
+    @IsNumber()
+    reviewID: number;
+
+    userID: string;
 }

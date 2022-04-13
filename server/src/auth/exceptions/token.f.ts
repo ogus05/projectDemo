@@ -19,6 +19,6 @@ export class RefreshTokenExceptionFilter implements ExceptionFilter{
         const res: Response = host.switchToHttp().getResponse();
         res.clearCookie(this.config.get("ACCESS_JWT"))
         .clearCookie(this.config.get("REFRESH_JWT"), {path:"/auth/jwt"})
-        .status(exception.getStatus()).send({message: exception.message});
+        .redirect('/');
     }
 }

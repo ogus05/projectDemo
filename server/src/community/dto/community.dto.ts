@@ -1,5 +1,4 @@
-import { IsBoolean, IsString } from "class-validator";
-import { User } from "src/entities/user.entity";
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
 
 export class GetCommunityListDto{
     offset: number;
@@ -11,9 +10,14 @@ export class GetCommunityListDto{
 export class PostCommunityDto{
     @IsString()
     name: string;
-    @IsBoolean()
-    isOpen: boolean;
+    @IsNumber()
+    @Max(1)
+    @Min(0)
+    isOpen: number;
     @IsString()
+    @IsNotEmpty({
+        message: "커뮤니티 소개 메시지는 필수입니다."
+    })
     message: string;
 
     leaderID: string;
@@ -21,8 +25,16 @@ export class PostCommunityDto{
 
 export class PutCommunityDto{
     ID: number;
-    @IsBoolean()
-    isOpen: boolean;
+    @IsNumber()
+    @Max(1)
+    @Min(0)
+    isOpen: number;
     @IsString()
     message: string;
+}
+
+export class ApplyCommunityDto{
+    @IsNumber()
+    ID: number;
+    userID: string;
 }

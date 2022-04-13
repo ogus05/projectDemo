@@ -1,9 +1,9 @@
-import { ConfigService } from "@nestjs/config";
+import { UserRole } from "src/auth/roles/roles";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
-import { BmReview } from "./bmReview.entity";
-import { BmUser } from "./bmUser.entity";
 import { Comment } from "./comment.entity";
 import { Community } from "./community.entity";
+import { ConfirmMail } from "./confirmMail";
+import { LikeComment } from "./likeComment.entity";
 import { Review } from "./review.entity";
 
 @Entity()
@@ -12,37 +12,17 @@ export class User {
         unique: true
     })
     ID: string;
-    @Column()
-    password: string;
-    @Column()
-    nickname: string;
-
-    @Column()
-    phone: string;
-    @Column()
-    email: string;
-    @Column({
-        default: false,
-        type: "tinyint"
-    })
-    acceptMail: boolean;
-
-
     @Column({
         nullable: false,
-        type: "varchar",
-        default: "user_default.jpg",
     })
-    image: string;
+    password: string;
     @Column({
-        nullable: true,
-        type: "text",
+        nullable: false,
     })
-    message: string;
-
-
+    nickname: string;
     @CreateDateColumn({
-        type: "timestamp"
+        type: "timestamp",
+        nullable: false,
     })
     regDate: Date;
     @Column({
@@ -50,16 +30,38 @@ export class User {
         nullable: true,
     })
     refreshJWT: string;
-
-    @OneToMany(() => BmUser, bmUser => bmUser.user)
-    bmUser: BmUser[];
-    @OneToMany(() => BmReview, bmReview => bmReview.user)
-    bmReview: BmReview[];
-
-    @OneToMany(() => Review, review => review.user)
-    review: Review[];
-    @OneToMany(() => Comment, comment => comment.user)
-    comment: Comment[];
+    
+    @Column({
+        nullable: false,
+        type: "varchar",
+        default: "user_default.jpg",
+    })  
+    image: string;
+    @Column({
+        nullable: true,
+        type: "text",
+    })
+    message: string;
+    @Column({
+        nullable: true,
+        default: null,
+    })
+    phone: string;
+    @Column({
+        type: "timestamp",
+        nullable: true,
+    })
+    birth: Date;
+    @Column({
+        type: "tinyint",
+        nullable: true,
+    })
+    male: boolean;
+    @Column({
+        default: false,
+        type: "tinyint"
+    })
+    acceptMail: boolean;
 
     @ManyToOne(() => Community, community => community.user, {
         cascade: true,
@@ -68,6 +70,27 @@ export class User {
         name: 'communityID',
     })
     community: Community;
-    @Column()
+    @Column({
+        default: 1
+    })
     communityID: number;
+
+
+    @Column({
+        type: "tinyint",
+        default: 0,
+    })
+    role: number;
+
+    @OneToMany(() => Review, review => review.user)
+    review: Review;
+
+    @OneToMany(() => Comment, comment => comment.user)
+    comment: Comment;
+
+    @OneToMany(() => LikeComment, likeComment => likeComment.user)
+    likeComment: LikeComment;
+
+    @OneToMany(() => ConfirmMail, confirmMail => confirmMail.user)
+    confirmMail: ConfirmMail;
 }

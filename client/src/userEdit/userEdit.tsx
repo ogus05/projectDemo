@@ -2,25 +2,68 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import Header from '../modules/header.logined';
 import ProfileEdit from './profileEdit';
+import passwordEncryptor from '../modules/ts/passwordEncryptor';
+import axios from 'axios';
+import UserDelete from './userDelete';
 
 const UserEdit = () => {
-    const [password, setPassword] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const userID = document.querySelector("#main")?.getAttribute("userID") as string;
+    
+
+    const setPasswordsToEmpty = () => {
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+    }
+
+    const onSubmitEditPassword = e => {
+        e.preventDefault();
+        if(currentPassword === newPassword){
+            alert("새로운 비밀번호가 이전 비밀번호와 같습니다.")
+            setPasswordsToEmpty();
+        }
+        if(newPassword !== confirmPassword){
+            alert("비밀번호 확인이 같지 않습니다.");
+            setPasswordsToEmpty();
+
+        }
+        axios.put("/user/password", {
+            currentPassword: passwordEncryptor(currentPassword, userID),
+            newPassword: passwordEncryptor(newPassword, userID)
+        }).then(res => {
+                axios.delete("/auth").then(res => {
+                    alert("비밀번호가 성공적으로 변경되었습니다. 재 로그인 후 사용 가능합니다.");
+                    location.href = '/';
+                }).catch(err => {
+                    alert("비밀번호가 성공적으로 변경되었습니다. 재 로그인 후 사용 가능합니다.");
+                    location.href = '/';
+                })
+        }).catch(err => {
+            alert(err.response.data.message);
+            setPasswordsToEmpty();
+        })
+    }
 
     return <>
         <Header/>
         <h1>닉네임 / 비밀번호 수정</h1>
-        <form>
+        <form onSubmit={e => onSubmitEditPassword(e)}>
+            <label>현재 비밀번호: <br />
+                <input type="password" value = {currentPassword} onChange={e => setCurrentPassword(e.target.value)}/>
+            </label><br/>
             <label>비밀번호: <br/>
-                <input type="password" value = {password} onChange={e => setPassword(e.target.value)}/>
+                <input type="password" value = {newPassword} onChange={e => setNewPassword(e.target.value)}/>
             </label><br/>
             <label>비밀번호 확인: <br/>
                 <input type="password" value = {confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
             </label><br/>
             <input type="submit" value="비밀번호 변경하기" />
         </form>
-        <ProfileEdit />
-        <button onClick={e => location.href = '/user/page/cancle'}>회원 탈퇴하기</button>
+        <ProfileEdit /><br />
+        <UserDelete />
     </>
 }
 

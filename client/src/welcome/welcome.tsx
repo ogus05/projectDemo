@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './scss/welcome.scss';
 import Modal from 'react-modal';
 import { LoginModal } from "./login.modal";
@@ -8,8 +8,11 @@ import { LoginModal } from "./login.modal";
 const Welcome = () => {
     const [loginIsOpen, setLoginIsOpen] = useState(false);
 
+    useEffect(() => {
+        Modal.setAppElement("#main");
+    })
+
     const clickLogin = e => {
-        Modal.setAppElement('#main');
         setLoginIsOpen(true);
     }
     

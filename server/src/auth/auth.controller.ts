@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpException, Post, Req, Res, UseFilters, UseGuards } from "@nestjs/common";
+import { All, BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpException, Post, Put, Req, Res, UseFilters, UseGuards } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
@@ -48,20 +48,14 @@ export class AuthController{
         .clearCookie(this.configService.get("REFRESH_JWT")).send();
     }
 
-    @Get('/jwt')
+    @All('/jwt')
     @UseGuards(JwtRefreshGuard)
     @UseFilters(RefreshTokenExceptionFilter)
     async issueAccessToken(@Req() req: Request, @Res() res: Response){
         const accessToken = await this.authService.issueAccessToken(req.user);
-        if(req.query.method === "GET"){
-            res.cookie(this.configService.get("ACCESS_JWT"), accessToken, {
-                sameSite: 'lax'
-            }).redirect(req.query.location as string);
-        } else{
-            res.cookie(this.configService.get("ACCESS_JWT"), accessToken, {
-                sameSite: 'lax'
-            }).status(202).send();
-        }
+        res.cookie(this.configService.get("ACCESS_JWT"), accessToken, {
+            sameSite: 'lax'
+        }).redirect(req.query.location as string);
     }
 
 }

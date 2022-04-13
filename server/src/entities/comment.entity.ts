@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { LikeComment } from "./likeComment.entity";
 import { Review } from "./review.entity";
 import { User } from "./user.entity";
 
@@ -7,14 +8,28 @@ export class Comment{
     @PrimaryGeneratedColumn()
     ID: number;
     @Column()
-    reg_date: Date;
-    @ManyToOne(() => User)
-    @JoinColumn()
-    user: User;
-    @ManyToOne(() => Review)
-    @JoinColumn()
-    review: Review;
+    regDate: Date;
     @Column()
     text: string;
+    
+
+    @ManyToOne(() => User)
+    @JoinColumn({
+        name: "userID"
+    })
+    user: User
+    @Column()
+    userID: string;
+
+    @ManyToOne(() => Review)
+    @JoinColumn({
+        name: "reviewID"
+    })
+    review: Review;
+    @Column()
+    reviewID: number;
+
+    @OneToMany(() => LikeComment, likeComment => likeComment.comment)
+    likeComment: LikeComment;
     
 }

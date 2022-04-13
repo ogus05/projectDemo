@@ -1,4 +1,4 @@
-import { Controller, Get, Render, Req, Res, UseInterceptors } from '@nestjs/common';
+import { All, Controller, Get, Render, Req, Res, UseInterceptors } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { AppService } from './app.service';
@@ -8,9 +8,9 @@ import { JWTInterceptor } from './interceptors/JWT.interceptor';
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
-  @Get()
+  @All()
   @UseInterceptors(JWTInterceptor)
   async getWelcomePage(@Req() req: Request, @Res() res: Response){
     if(req.user){
@@ -18,6 +18,7 @@ export class AppController {
     } else{
       res.render('welcome');
     }
+
   }
 
   @Get('/test')

@@ -11,6 +11,9 @@ import { ReviewModule } from './review/review.module';
 import { CommunityModule } from './community/community.module';
 import { MulterModule } from '@nestjs/platform-express';
 import {diskStorage} from 'multer'
+import { CommentService } from './comment/comment.service';
+import { CommentModule } from './comment/comment.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -34,7 +37,7 @@ import {diskStorage} from 'multer'
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', "..", 'client', 'public')
     }),
-    UserModule, AuthModule, ReviewModule, CommunityModule,
+    UserModule, AuthModule, ReviewModule, CommunityModule, CommentModule, MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
