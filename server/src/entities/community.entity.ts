@@ -13,14 +13,12 @@ export class Community{
     name: string;
     @OneToOne(() => User)
     @JoinColumn({
-        name: "leaderID",
+        name: "leaderNumber"
     })
     leader: User;
     @Column({
-        unique: true,
-        type: "string"
     })
-    leaderID: string;
+    leaderNumber: number;
     @Column({
         type: "varchar",
         default: 'community_default.jpg',

@@ -11,7 +11,6 @@ import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategy/jwt-auth.strategy";
 import { JwtRefreshStrategy } from "./strategy/jwt-refresh.strategy";
 import { LocalStrategy } from "./strategy/local.strategy";
-import { NaverStrategy } from "./strategy/naver.strategy";
 
 @Module({
     imports: [
@@ -24,7 +23,7 @@ import { NaverStrategy } from "./strategy/naver.strategy";
     ],
     providers: [
         AuthService,
-        NaverStrategy, LocalStrategy, JwtStrategy, JwtRefreshStrategy
+        LocalStrategy, JwtStrategy, JwtRefreshStrategy
     ],
     exports: [
         AuthService

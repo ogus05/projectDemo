@@ -6,7 +6,7 @@ export class PostCommentDto{
     @IsString()
     text: string;
 
-    userID: string;
+    userNumber: number;
 }
 
 export class PutCommentDto{
@@ -15,19 +15,19 @@ export class PutCommentDto{
     @IsString()
     text: string;
 
-    userID: string;
+    userNumber: number;
 }
 
 export class DeleteCommentDto{
     @IsNumber()
     commentID: number;
 
-    userID: string;
+    userNumber: number;
 }
 
 export class LikeCommentDto{
     @IsNumber()
     commentID: number;
 
-    userID: string;
+    userNumber: number;
 }

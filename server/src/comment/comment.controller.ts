@@ -16,7 +16,7 @@ export class CommentController {
     @Post()
     @UseGuards(JwtAuthGuard)
     async postComment(body: PostCommentDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.commentService.createComment(body);
         res.send()
     }
@@ -24,7 +24,7 @@ export class CommentController {
     @Post('like')
     @UseGuards(JwtAuthGuard)
     async postCommentLike(body: LikeCommentDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.commentService.postLikeComment(body);
         res.send()
     }
@@ -32,7 +32,7 @@ export class CommentController {
     @Put()
     @UseGuards(JwtAuthGuard)
     async putComment(body: PutCommentDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.commentService.putComment(body);
         res.send();
     }
@@ -40,7 +40,7 @@ export class CommentController {
     @Delete()
     @UseGuards(JwtAuthGuard)
     async deleteComment(body: DeleteCommentDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.commentService.deleteComment(body);
         res.send();
     }
@@ -48,7 +48,7 @@ export class CommentController {
     @Delete('like')
     @UseGuards(JwtAuthGuard)
     async deleteCommentLike(body: LikeCommentDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.commentService.deleteLikeComment(body);
     }
 }

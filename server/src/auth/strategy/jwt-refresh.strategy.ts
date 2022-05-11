@@ -30,7 +30,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy,'refreshJWT'){
     //token 만료 시 guard의 handler에게 err넘김. 만료되지 않았으면 DB의 refreshToken과 일치 여부 확인.
     //1번째
     async validate(req: Request, payload: any){
-        const user = {userID: payload.userID, nickname: payload.sub};
+        const user = {number: payload.number, nickname: payload.sub};
         if(!(await this.authService.handleRefreshToken().compareToken(user, req?.cookies?.[this.configService.get("REFRESH_JWT")]))){
             throw new RefreshTokenException('다른 사용자가 로그인하였습니다.');
         } else{

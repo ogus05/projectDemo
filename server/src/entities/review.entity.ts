@@ -15,13 +15,17 @@ export class Review{
     text: string;
 
     @ManyToOne(() => User)
-    @JoinColumn({name: "userID"})
+    @JoinColumn({
+        name: "userNumber"
+    })
     user: User;
     @Column()
-    userID: string;
+    userNumber: number;
 
     @ManyToOne(() => Community)
-    @JoinColumn({ name: "communityID"})
+    @JoinColumn({
+        name: "communityID"
+    })
     community: Community;
     @Column({
         nullable: false,

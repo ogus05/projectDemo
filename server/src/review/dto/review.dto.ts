@@ -19,7 +19,7 @@ export class PostReviewDto{
     @IsNumber()
     ISBN: string;
 
-    userID: string;
+    userNumber: number;
 }
 
 export class PutReviewDto{
@@ -30,12 +30,12 @@ export class PutReviewDto{
     @IsString()
     text: string;
 
-    userID: string;
+    userNumber: number;
 }
 
 export class DeleteReviewDto{
     @IsNumber()
     reviewID: number;
 
-    userID: string;
+    userNumber: number;
 }

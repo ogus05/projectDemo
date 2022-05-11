@@ -1,6 +1,6 @@
 declare namespace Express {
     interface Request{
-        user: {userID: string, nickname: string, community: {
+        user: {nickname: string, number: number, community: {
             ID
         }}
     }

@@ -1,5 +1,4 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Comment } from "./comment.entity";
 import { User } from "./user.entity";
 
 @Entity()
@@ -8,15 +7,16 @@ export class ConfirmMail{
     ID: number;
 
     @ManyToOne(() => User, {
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
+        eager: true
     })
     @JoinColumn({
-        name: "userID",
+        name: "userNumber"
     })
     user: User;
 
     @Column()
-    userID: string;
+    userNumber: number;
 
     @Column()
     type: number;

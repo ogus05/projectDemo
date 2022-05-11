@@ -1,4 +1,4 @@
-import { BadRequestException, Get, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Get, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Community } from 'src/entities/community.entity';
@@ -7,7 +7,7 @@ import { Connection, QueryResult, Repository } from 'typeorm';
 import { ApplyCommunityDto, GetCommunityListDto, PostCommunityDto, PutCommunityDto } from './dto/community.dto';
 import * as fs from "fs"
 import { UserService } from 'src/user/user.service';
-import { ApplyCommunity } from 'src/entities/applyCommunity';
+import { ApplyCommunity } from 'src/entities/applyCommunity.entity';
 
 @Injectable()
 export class CommunityService {
@@ -24,19 +24,35 @@ export class CommunityService {
     ){}
 
 
-    async getCommunityByID(communityID: number){
+
+
+    //0. default, 1. info, 2. edit
+    async getCommunityByID(communityID: number, type: number){
         try{
-            const res = await this.communityRepository.createQueryBuilder()
-            .where(`ID = :communityID`, {communityID})
+            let qb = this.communityRepository.createQueryBuilder(`community`)
+            switch(type){
+                case 0:{
+                    qb = qb.select(['leaderNumber']);
+                    break;
+                } case 1:{
+                    qb = qb.select(['community.leaderNumber', 'community.image',
+                    'community.message', 'community.regDate']);
+                    break;
+                } case 2:{
+                    qb = qb.select(['community.name', 'community.isOpen', 
+                    'community.message']);
+                }
+            }
+            const community = await qb.where(`ID = :communityID`, {communityID})
             .getOne();
-            return res;
+            return community;
         } catch(e){
             console.log ("getCommunityByID. " + e);
             throw e;
         }
     }
 
-    async getCommunityByName(communityName: string){
+    async getCommunityIDByName(communityName: string){
         try{
             const removeSpaceName = communityName.replace(' ', '');
             const community = await this.communityRepository.createQueryBuilder('community')
@@ -45,31 +61,17 @@ export class CommunityService {
             .getOne();
             return community;
         } catch(e){
-            console.log("getCommunityByName. " + e);
+            console.log("getCommunityIDByName. " + e);
             throw e;
         }
     }
 
-    //TODO 궁금 첫번째
-    async getCommunityList(dto: GetCommunityListDto){
-        const communityList = await this.userRepository.createQueryBuilder('user')
-        .select("COUNT(user.ID)", "userCount")
-        .addSelect("communityID", "communityID")
-        .where("communityID = :keyCommunityID", )
-    }
-
-    async getCommunityApplyUserList(communityID: number){
-        const users = (await this.applyCommunityRepository.find({
-            communityID
-        })).map(v => v.user);
-        return users;
-    }
 
     async createCommunity(dto: PostCommunityDto){
-        if(await this.getCommunityByName(dto.name)){
+        if(await this.getCommunityIDByName(dto.name)){
             throw new BadRequestException("존재하는 커뮤니티 이름입니다.");
         }
-        const user = await this.userService.getUserByID(dto.leaderID, false, false);
+        const user = await this.userService.getUserByNumber(dto.leaderNumber, false);
         if(user.communityID !== 1) {
             throw new BadRequestException("가입한 커뮤니티가 존재합니다.");
         }
@@ -78,11 +80,11 @@ export class CommunityService {
         try{
             await qr.startTransaction();
             const community = this.communityRepository.create({
-                isOpen: dto.isOpen, leaderID: dto.leaderID,
+                isOpen: dto.isOpen, leaderNumber: dto.leaderNumber,
                 message: dto.message, name: dto.name,
             });
             const insertedCommunity = await qr.manager.getRepository(Community).save(community);
-            await qr.manager.getRepository(User).update(dto.leaderID,{
+            await qr.manager.getRepository(User).update(dto.leaderNumber,{
                community: insertedCommunity,
             });
             await qr.commitTransaction();
@@ -94,19 +96,35 @@ export class CommunityService {
             await qr.release();
         }
     }
+    
+    async getCommunityApplyUserList(communityID: number){
+        const users = await this.applyCommunityRepository.createQueryBuilder('apply')
+        .leftJoin("apply.user", "user")
+        .select(["user.number", "user.nickname", "apply.communityID"])
+        .where('apply.communityID = :keyCommunityID', {keyCommunityID: communityID})
+        .getMany();
+        return users.map(user => user.user);
+    }
 
     async applyCommunity(dto: ApplyCommunityDto){
-        if((await this.userService.getUserByID(dto.userID, false, false)).communityID !== 1){
+        if((await this.userService.getUserByNumber(dto.number, false)).communityID !== 1){
             throw new BadRequestException("이미 커뮤니티에 가입했습니다.");
         }
-        await this.applyCommunityRepository.delete({
-            userID: dto.userID
-        });
+        await this.deleteCommunityApply(dto.ID, dto.number);
         await this.applyCommunityRepository.insert({
             communityID: dto.ID,
-            userID: dto.userID,
+            userNumber: dto.number,
         });
     }
+
+    async deleteCommunityApply(communityID: number, number: number){
+        const affected = (await this.applyCommunityRepository.delete({
+            ID: communityID,
+            userNumber: number,
+        })).affected;
+        if(affected === 0) throw new BadRequestException("해당 유저는 커뮤니티 가입을 요청하지 않았습니다.");
+    }
+
 
     async updateCommunity(dto: PutCommunityDto){
         await this.communityRepository.update(dto.ID, {
@@ -121,8 +139,8 @@ export class CommunityService {
         });
     }
 
-    async updateCommunityLeader(communityID: number, leaderID: string){
-        const user = await this.userService.getUserByID(leaderID, false, false);
+    async updateCommunityLeader(communityID: number, leaderNumber: number){
+        const user = await this.userService.getUserByNumber(leaderNumber, false);
         if(user){
             if(user.communityID !== communityID){
                 throw new BadRequestException("다른 커뮤니티의 유저는 리더가 될 수 없습니다.");
@@ -131,23 +149,27 @@ export class CommunityService {
             throw new BadRequestException("존재하지 않는 유저입니다.");
         }
         await this.communityRepository.update(communityID, {
-            leaderID: leaderID
+            leaderNumber
         });
     }
 
-    async updateCommunityUser(userID: string, communityID: number = 1){
+    async updateCommunityUser(userNumber: number, communityID: number = 1){
         if(communityID !== 1){
             const applyCommunity = await this.applyCommunityRepository.findOne({
-                userID, communityID
+                userNumber, communityID
             });
             if(!applyCommunity){
                 throw new BadRequestException("가입하려는 유저의 요청이 필요합니다.");
+            } else{
+                await this.applyCommunityRepository.delete(applyCommunity);
             }
         }
-        if((await this.getCommunityByID(communityID)).leaderID === userID){
-            throw new BadRequestException("리더는 커뮤니티를 탈퇴할 수 없습니다.");
+        else{
+            if((await this.getCommunityByID(communityID, 0)).leaderNumber === userNumber){
+                throw new BadRequestException("리더는 커뮤니티를 탈퇴할 수 없습니다.");
+            }
         }
-        await this.userRepository.update(userID, {
+        await this.userRepository.update({number: userNumber}, {
             communityID
         });
     }
@@ -169,6 +191,7 @@ export class CommunityService {
         } catch(e){
             console.log("deleteCommunity: \n" + e);
             await qr.rollbackTransaction();
+            throw new BadRequestException();
         } finally{
             await qr.release();
         }

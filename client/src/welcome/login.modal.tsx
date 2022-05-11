@@ -24,7 +24,7 @@ export const LoginModal = ({isOpen, onRequestClose}) => {
         e.preventDefault();
         axios.post('/user/confirm?type=1', {userID})
         .then(res => {
-            alert("이메일을 확인해 주세요.");
+            alert("이메일이 성공적으로 발신되었습니다.");
             location.reload();
         }).catch(err => {
             alert(err.response.data.message);

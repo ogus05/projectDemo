@@ -3,33 +3,31 @@ import ReactDOM from 'react-dom';
 import Header from '../modules/header.logined';
 import Modal from "react-modal";
 import axios from 'axios';
-import { CheckLeader } from '../modules/ts/checkLeader';
+import { ICommunityEdit } from '../interfaces/community.i';
+import { CommunityAccept } from './communityAccept';
 
 const CommunityEdit = () => {
-    const [isOpen, setIsOpen] = useState(0);
-    const [message, setMessage] = useState('');
-    
+    const [community, setCommunity] = useState<ICommunityEdit>({
+        name: '', isOpen: 0, message: ''
+    })
     const [delegateModalIsOpen, setDelegateModalIsOpen] = useState(false);
     const [delegatedUser, setDelegatedUser] = useState('');
 
     const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
     useEffect(() => {
-        CheckLeader().then(communityID => {
-            axios.get(`/community/${communityID}`).then(res => {
-                const isOpenTrue = document.querySelector("#isOpenTrue");
-                const isOpenFalse = document.querySelector("#isOpenFalse");
-                setIsOpen(res.data.isOpen);
-                setMessage(res.data.message);
-                if(res.data.isOpen === 1 && isOpenTrue){
-                    isOpenTrue["checked"] = true;
-                } else if (isOpenFalse){
-                    isOpenFalse["checked"] = true;
-                }
-            }).catch(err => {
-                alert(err.response.data.message);
-                location.href = '/';
+        axios.get('/community/edit').then(res => {
+            setCommunity({
+                ...community,
+                ...res.data,
             })
-        });
+            const isOpenTrue = document.querySelector("#isOpenTrue");
+            const isOpenFalse = document.querySelector("#isOpenFalse");
+            if(res.data.isOpen === 1 && isOpenTrue !== null){
+                isOpenTrue["checked"] = 1;
+            } else if(isOpenFalse !== null){
+                isOpenFalse["checked"] = 1;
+            }
+        })
         Modal.setAppElement("#main");
         
     }, []);
@@ -55,13 +53,14 @@ const CommunityEdit = () => {
 
     const onClickSubmit = e => {
         axios.put(`/community`, {
-            isOpen, message
+            isOpen: community.isOpen, message: community.message,
         }).then(res => {
             alert("성공적으로 변경되었습니다.");
+            location.reload();
         }).catch(err => {
             alert(err.response.data.message);
+            location.reload();
         })
-        location.reload();
     }
 
     const onClickDelete = e => {
@@ -79,14 +78,27 @@ const CommunityEdit = () => {
         <h1>커뮤니티 정보 수정</h1>
         <button onClick={e => setDelegateModalIsOpen(true)}>리더 권한 위임하기</button><br/>
         <label>공개 여부 : <br />
-            <input type="radio" name="isOpen" id="isOpenTrue" onChange={e => setIsOpen(1)} />공개
-            <input type="radio" name="isOpen" id="isOpenFalse" onChange={e => setIsOpen(0)}/>비공개
+            <input type="radio" name="isOpen" id="isOpenTrue" onChange={e => setCommunity({
+                ...community,
+                isOpen: 1,
+            })} />공개
+            <input type="radio" name="isOpen" id="isOpenFalse" onChange={e => setCommunity({
+                ...community,
+                isOpen: 0,
+            })}/>비공개
         </label><br/>
         <label>커뮤니티 메시지 : <br/>
-            <input type="text" value={message} onChange = {e => setMessage(e.target.value)}/>
+            <input type="text" value={community.message} onChange = {e => setCommunity({
+                ...community,
+                message: e.target.value,
+            })}/>
         </label><br/>
         <button onClick={e => onClickSubmit(e)}>정보 변경하기</button><br/>
         <button onClick={e => setDeleteModalIsOpen(true)}>커뮤니티 삭제하기</button><br/>
+        <CommunityAccept />
+        
+        
+        
         <Modal isOpen = {delegateModalIsOpen} onRequestClose={() => setDelegateModalIsOpen(false)}
             className="delegateModal">
             <h3>리더 권한 위임하기</h3>

@@ -8,14 +8,18 @@ export class LikeComment{
     ID: number;
 
     @ManyToOne(() => Comment)
-    @JoinColumn({name: "commentID"})
+    @JoinColumn({
+        name: "commentID"
+    })
     comment: Comment
     @Column()
     commentID: number;
 
     @ManyToOne(() => User)
-    @JoinColumn({name: "userID"})
+    @JoinColumn({
+        name: "userNumber"
+    })
     user: User;
     @Column()
-    userID: string;
+    userNumber: number;
 }

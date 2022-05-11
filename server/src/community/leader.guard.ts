@@ -8,8 +8,8 @@ export class LeaderGuard implements CanActivate {
     ){}
     async canActivate(context: ExecutionContext) {
         const req = context.switchToHttp().getRequest();
-        const user = await this.userService.getUserByID(req.user.userID, true, false);
-        if(req.user.userID === user.community.leaderID){
+        const user = await this.userService.getUserByNumber(req.user.number, true);
+        if(req.user.number === user.community.leaderNumber){
             req.user = user;
             return true;
         } else{

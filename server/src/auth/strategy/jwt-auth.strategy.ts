@@ -1,7 +1,6 @@
 import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
-import { Request } from "express";
 import { Strategy } from "passport-jwt";
 import { AccessTokenException } from "../exceptions/token.e";
 
@@ -28,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'accessJWT'){
         if(payload.exp * 1000 < Date.now()){
             throw new AccessTokenException();
         }else{
-            return {userID: payload.userID, nickname: payload.sub}
+            return {number: payload.userID, nickname: payload.sub}
         }
     }
 }

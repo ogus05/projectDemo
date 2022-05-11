@@ -1,62 +1,76 @@
 import { UserRole } from "src/auth/roles/roles";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Generated, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { ApplyCommunity } from "./applyCommunity.entity";
 import { Comment } from "./comment.entity";
 import { Community } from "./community.entity";
-import { ConfirmMail } from "./confirmMail";
+import { ConfirmMail } from "./confirmMail.entity";
 import { LikeComment } from "./likeComment.entity";
 import { Review } from "./review.entity";
 
 @Entity()
 export class User {
-    @PrimaryColumn({
+    @PrimaryGeneratedColumn()
+    number: number;
+
+    @Column({
         unique: true
     })
     ID: string;
+
     @Column({
         nullable: false,
     })
     password: string;
+
     @Column({
         nullable: false,
     })
     nickname: string;
+
     @CreateDateColumn({
         type: "timestamp",
         nullable: false,
     })
     regDate: Date;
+
     @Column({
         default: null,
         nullable: true,
     })
     refreshJWT: string;
     
+
     @Column({
         nullable: false,
         type: "varchar",
         default: "user_default.jpg",
     })  
     image: string;
+
     @Column({
         nullable: true,
         type: "text",
     })
     message: string;
+
     @Column({
         nullable: true,
         default: null,
     })
     phone: string;
+
     @Column({
         type: "timestamp",
         nullable: true,
     })
     birth: Date;
+
     @Column({
         type: "tinyint",
         nullable: true,
     })
     male: boolean;
+    
     @Column({
         default: false,
         type: "tinyint"
@@ -67,7 +81,7 @@ export class User {
         cascade: true,
     })
     @JoinColumn({
-        name: 'communityID',
+        name: "communityID"
     })
     community: Community;
     @Column({

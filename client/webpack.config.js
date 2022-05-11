@@ -4,7 +4,7 @@ const path = require('path');
 
 const setEntry = srcDir => {
     const ret = {};
-    const exceptFiles = ["modules"]
+    const exceptFiles = ["modules", "interfaces"];
     const lowerForderNames = fs.readdirSync(path.join(__dirname, srcDir));
     lowerForderNames.forEach(forderName => {
         if(exceptFiles.indexOf(forderName) === -1){

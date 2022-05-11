@@ -32,21 +32,21 @@ export class ReviewController{
     @Post()
     @UseGuards(JwtAuthGuard)
     async postReview(@Body() body: PostReviewDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.reviewService.postReview(body);
     }
 
     @Put()
     @UseGuards(JwtAuthGuard)
     async putReview(@Body() body: PutReviewDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.reviewService.putReview(body);
     }
 
     @Delete()
     @UseGuards(JwtAuthGuard)
     async deleteReview(@Body() body: DeleteReviewDto, @Req() req: Request, @Res() res: Response){
-        body.userID = req.user.userID;
+        body.userNumber = req.user.number;
         await this.reviewService.deleteReview(body);
     }
 }

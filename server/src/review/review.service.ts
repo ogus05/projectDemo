@@ -37,7 +37,7 @@ export class ReviewService{
     }
 
     async postReview(dto: PostReviewDto){
-        const userID = await this.userService.getUserByID(dto.userID, false, false);
+        const userID = await this.userService.getUserByNumber(dto.userNumber, false);
         if(userID.communityID === 1){
             throw new BadRequestException("커뮤니티에 가입하지 않으면 글을 쓸 수 없습니다.");
         }
@@ -48,7 +48,7 @@ export class ReviewService{
     async putReview(dto: PutReviewDto){
         await this.reviewRepository.update({
             ID: dto.reviewID,
-            userID: dto.userID,
+            userNumber: dto.userNumber,
         },{
             title: dto.title,
             text: dto.text,
@@ -58,7 +58,7 @@ export class ReviewService{
     async deleteReview(dto: DeleteReviewDto){
         const review = await this.reviewRepository.delete({
             ID: dto.reviewID,
-            userID: dto.userID
+            userNumber: dto.userNumber,
         });
         if(review.affected !== 1){
             throw new BadRequestException("다른 사용자의 글을 삭제할 수 없습니다.");

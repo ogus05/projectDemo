@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ConfirmMail } from "src/entities/confirmMail";
+import { ConfirmMail } from "src/entities/confirmMail.entity";
 import { Review } from "src/entities/review.entity";
 import { User } from "src/entities/user.entity";
 import { UserModule } from "src/user/user.module";

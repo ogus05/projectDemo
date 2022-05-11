@@ -15,11 +15,11 @@ export class Comment{
 
     @ManyToOne(() => User)
     @JoinColumn({
-        name: "userID"
+        name: "userNumber"
     })
     user: User
     @Column()
-    userID: string;
+    userNumber: number;
 
     @ManyToOne(() => Review)
     @JoinColumn({

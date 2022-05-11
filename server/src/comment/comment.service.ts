@@ -31,7 +31,7 @@ export class CommentService {
     async putComment(dto: PutCommentDto){
         const review = await this.commentRepository.update({
             ID: dto.commentID,
-            userID: dto.userID,
+            userNumber: dto.userNumber,
         }, {
             text: dto.text,
         });
@@ -43,7 +43,7 @@ export class CommentService {
     async deleteComment(dto: DeleteCommentDto){
         const review = await this.commentRepository.delete({
             ID: dto.commentID,
-            userID: dto.userID,
+            userNumber: dto.userNumber,
         });
         if(review.affected !== 1){
             throw new BadRequestException("다른 유저의 댓글을 삭제할 수 없습니다.");
@@ -52,14 +52,14 @@ export class CommentService {
 
     async postLikeComment(dto: LikeCommentDto){
         await this.likeCommentRepository.insert({
-            userID: dto.userID,
+            userNumber: dto.userNumber,
             commentID: dto.commentID
         });
     }
 
     async deleteLikeComment(dto: LikeCommentDto){
         const likeComment = await this.likeCommentRepository.delete({
-            userID: dto.userID,
+            userNumber: dto.userNumber,
             commentID: dto.commentID,
         });
         if(likeComment.affected !== 1){

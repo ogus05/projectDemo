@@ -33,9 +33,10 @@ export class AuthController{
         } catch(e){
             try{
                 await this.handleRefreshToken.deleteToken(req.user);
-            } catch(e){}
-            console.log(e);
-            throw new BadRequestException("로그인 도중 오류가 발생했습니다.");
+            } catch(e){
+                console.log(e);
+                throw new BadRequestException("로그인 도중 오류가 발생했습니다.");
+            }
         }
     }
 

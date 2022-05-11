@@ -6,7 +6,7 @@ import { PostUserDto } from 'src/user/dto/user.dto';
 export class MailService {
     constructor(private mailerService: MailerService) {}
 
-    async sendUserConfirmation(token: string, userID, nickname){
+    async sendUserConfirmation(token: string, userID){
         const url = `localhost:3000/user/confirm?token=${token}`;
 
         await this.mailerService.sendMail({
@@ -14,7 +14,6 @@ export class MailService {
             subject: 'the reader',
             template: 'confirm',
             context: {
-                name: nickname,
                 url,
             }
         })

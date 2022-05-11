@@ -20,7 +20,7 @@ export class PostCommunityDto{
     })
     message: string;
 
-    leaderID: string;
+    leaderNumber: number;
 }
 
 export class PutCommunityDto{
@@ -36,5 +36,5 @@ export class PutCommunityDto{
 export class ApplyCommunityDto{
     @IsNumber()
     ID: number;
-    userID: string;
+    number: number;
 }

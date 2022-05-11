@@ -17,14 +17,14 @@ export class AuthService{
 
     handleRefreshToken(){
         const issueToken = async user => {
-            const payload = { userID: user.userID, sub: user.nickname};
+            const payload = { userID: user.number, sub: user.nickname};
             const refreshToken = this.jwtService.sign(payload, {expiresIn: this.config.get("REFRESH_EXPIRE")});
-            pbkdf2(refreshToken, user.userID, 100, 64, 'sha512', async (err, key) => {
+            pbkdf2(refreshToken, String(user.number), 100, 64, 'sha512', async (err, key) => {
                 if(err) {
                     throw err;
                 }
                 await this.userRepository.update({
-                    ID: user.userID
+                    number: user.number
                 }, {
                     refreshJWT: key.toString('base64'),
                 })
@@ -33,8 +33,9 @@ export class AuthService{
         }
 
         const deleteToken = async user => {
+            console.log(user);
             await this.userRepository.update({
-                ID: user.userID,
+                number: user.number,
             }, {
                 refreshJWT: null,
             });
@@ -45,7 +46,7 @@ export class AuthService{
         const compareToken = async (user, token) => {
             const tokenFromDB = await this.userRepository.createQueryBuilder('user')
             .select('user.refreshJWT')
-            .where(`ID = :userID`, {userID: user.userID})
+            .where(`number = :keyNumber`, {keyNumber: user.number})
             .getOne();
             if(!tokenFromDB) return false;
             const refreshToken = tokenFromDB.refreshJWT;
@@ -53,7 +54,7 @@ export class AuthService{
                 if(refreshToken === null) return true;
                 else return false;
             } else{ 
-                const encryptedToken = pbkdf2Sync(token, user.userID, 100, 64, 'sha512');
+                const encryptedToken = pbkdf2Sync(token, String(user.number), 100, 64, 'sha512');
                 if(encryptedToken.toString('base64') === refreshToken){
                     return true;
                 } else{
@@ -64,7 +65,7 @@ export class AuthService{
         return {issueToken, deleteToken, compareToken}
     }
     async issueAccessToken(user){
-        const payload = { userID: user.userID, sub: user.nickname};
+        const payload = { userID: user.number, sub: user.nickname};
         return this.jwtService.sign(payload, {expiresIn: this.config.get("ACCESS_EXPIRE")});
     }
 }
