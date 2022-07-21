@@ -1,0 +1,58 @@
+@import '../../modules/mixin/card.scss';
+@import '../../modules/mixin/title.scss';
+.blank{
+    height: 100px;
+}
+.title{
+    @include title();
+}
+#mainCard{
+    position: relative;
+    .left, .right{
+        position: absolute;
+        font-size: 60px;
+        width: 80px;
+        height: 80px;
+        top: 50%;
+        background-color: rgba(0, 0, 0, 0.3);
+        color: #FFFFFF;
+        display: grid;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .left{
+        transform: translate(0, -50%);
+    }
+    .right{
+        left: 100%;
+        transform: translate(-100%, -50%);
+    }
+}
+.card{
+    @include card();
+    .dateBlock{
+        height: 100px;
+        width: 1fr;
+        display: grid;
+        justify-content: end;
+        grid-template-columns: repeat(2, 70px);
+        align-items: center;
+        padding-right: 80px;
+        div{
+            height:30px;
+            width: 60px;
+            font-size: 16px;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            color: #898989;
+            background-color: inherit;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+        #selected{
+            background-color: #74603B;
+            color: #FFFFFF;
+        }
+    }
+}

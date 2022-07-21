@@ -1,0 +1,113 @@
+@import '../../modules/mixin/title.scss';
+#main{
+    article{
+        padding-bottom: 60px;
+        .title{
+            @include title();
+        }
+        .form{
+            width: 1fr;
+            height: 670px;
+            background: #F5F6F7;
+            border: 1px solid #DADADA;
+            display: grid;
+            grid-template-columns: repeat(2, 550px);
+            grid-template-rows: 500px, 1fr;
+            justify-content: center;
+        }
+        .button{
+            padding: 20px;
+            width: 1fr;
+            grid-column: 1 / span 2;
+            display: grid;
+            grid-template-columns: repeat(2, 300px);
+            justify-content: center;
+            .cancle, .confirm{
+                cursor: pointer;
+                width: 200px;
+                height: 50px;
+                margin: auto;
+                border-radius: 8px;
+                font-size: 21px;
+                font-weight: 400;
+                text-align: center;
+                display: grid;
+                align-items: center;
+            }
+            .cancle{
+                background-color: #FFFFFF;
+                border: 1px solid #DADADA;
+            }
+            .confirm{
+                background-color: #74603B;
+                border: 1px solid #605135;
+                color: #FFFFFF;
+            }
+        }
+        .left, .right{
+            color: #454545;
+            padding: 20px;
+            width: 100%;
+            .community{
+                &Name{
+                    height: 50px;
+                    width: 460px;
+                    border: 1px solid #DADADA;
+                    font-size: 20px;
+                }
+                &Message{
+                    height: 110px;
+                    width: 460px;
+                    border: 1px solid #DADADA;
+                    resize: none;
+                }
+                &IsOpen{
+                    height: 120px;
+                    width: 460px;
+                    background: #FFFFFF;
+                    border: 1px solid #DADADA;
+                    display: grid;
+                    grid-template-columns: repeat(2, 230px);
+                    .false, .true{
+                        display: grid;
+                        margin: 10px;
+                        grid-template-columns: 25px 1fr;
+                        grid-template-rows: 25px 1fr;
+                        align-items: center;
+                        cursor: pointer;
+                        p{
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: #454545;
+                        }
+                    }
+                }
+                &Mark{
+                    width: 130px;
+                    height: 130px;
+                    position: relative;
+                    display: block;
+                    cursor: pointer;
+                    z-index: 1;
+                    img{
+                        position: absolute;
+                        width: 130px;
+                        height: 130px;
+                        object-fit: cover;
+                    }
+                    .markUploadFont{
+                        width: 130px;
+                        height: 130px;
+                        position: absolute;
+                        font-size: 50px;
+                        color:#FFFFFF;
+                        text-align: center;
+                        line-height: 130px;
+                    }
+                }
+            }
+        }
+
+
+    }
+}

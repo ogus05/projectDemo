@@ -1,0 +1,38 @@
+@import '../../modules/mixin/card.scss';
+@import '../../modules/mixin/title.scss';
+.review{
+    .blank{
+        height: 100px;
+    }
+    .title{
+        @include title();
+    }
+    .card{
+        @include card();
+        .dateBlock{
+            height: 100px;
+            width: 1fr;
+            display: grid;
+            justify-content: end;
+            grid-template-columns: repeat(2, 70px);
+            align-items: center;
+            padding-right: 80px;
+            div{
+                height:30px;
+                width: 60px;
+                font-size: 16px;
+                display: grid;
+                justify-content: center;
+                align-items: center;
+                color: #898989;
+                background-color: inherit;
+                border-radius: 50px;
+                cursor: pointer;
+            }
+            #selected{
+                background-color: #74603B;
+                color: #FFFFFF;
+            }
+        }
+    }
+}

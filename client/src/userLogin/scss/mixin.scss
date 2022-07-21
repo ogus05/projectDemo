@@ -1,0 +1,45 @@
+@mixin block{
+    display: grid;
+    grid-template-rows: 20px, 80px 20px;
+    align-items: end;
+    div{
+        font-weight: 600;
+    }
+    input[type="text"], input[type="password"]{
+        width: 100%;
+        height: 56px;
+        padding: 10px 10px 10px 15px;
+        border: solid 1px  #CACACA;
+        background-color: transparent;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+    .alert{
+        color: #D85050;
+        font-size: 14px;
+        font-weight: 400;
+    }
+}
+
+@mixin submitBlock{
+    width: 100%;
+    height: 56px;
+    background: #74603B;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 400;
+    font-size: 22px;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+@mixin grid($height, $count){
+    display: grid;
+    grid-template-rows: repeat($count - 1, $height) 200px;
+    grid-template-columns: 400px;
+    justify-content: center;
+    align-items: center;
+}

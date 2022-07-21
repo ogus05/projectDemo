@@ -8,12 +8,12 @@ export class LeaderGuard implements CanActivate {
     ){}
     async canActivate(context: ExecutionContext) {
         const req = context.switchToHttp().getRequest();
-        const user = await this.userService.getUserByNumber(req.user.number, true);
+        const user = await this.userService.getUserCommunityLeader(req.user.number);
         if(req.user.number === user.community.leaderNumber){
             req.user = user;
             return true;
         } else{
-            return false;
+            throw new BadRequestException("커뮤니티 리더가 접근 가능한 정보입니다.");
         }
     }
 

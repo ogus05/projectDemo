@@ -1,0 +1,104 @@
+.comment{
+    display: grid;
+    grid-template-rows: 450px auto;
+    .commentWrite{
+        display: grid;
+        grid-template-rows: 100px 200px 50px;
+        gap: 10px 0;
+        .text{
+            font-size: 25px;
+            margin-top: 20px;
+            font-size: 34px;
+            font-weight: 500;
+            line-height: 100px;
+        }
+        textarea{
+            padding: 30px;
+            width: 1220px;
+            height: 140px;
+            text-align: start;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 0.5px solid #000000;
+            resize: none;
+        }
+        .buttonBlock{
+            display: grid;
+            grid-template-columns: 100px auto;
+            grid-template-rows: 60px;
+            .isOpenButton{
+
+            }
+            .uploadButton{
+                .block{
+                    width: 128px;
+                    height: 56px;
+                    margin-left: auto;
+                    background-color: #74603B;
+                    color: #FFFFFF;
+                    text-align: center;
+                    line-height: 56px;
+                    font-size: 20px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                }
+            }
+        }
+    }
+    .commentView{
+        .text{
+            font-size: 25px;
+            margin-top: 20px;
+            font-size: 34px;
+            font-weight: 500;
+            line-height: 100px;
+        }
+        .commentList{
+            width: 1280px - 50px * 2;
+            height: auto;
+            padding: 0 33px 43px 33px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid #EAEAEA;
+            .commentInfo{
+                margin-top: 50px;
+                display: grid;
+                grid-template-columns: 50px auto;
+                gap: 0 17px;
+                border-bottom: 1px solid #DDDDDD;
+                .left{
+                    img{
+                        height: 45px;
+                        width: 45px;
+                        object-fit: cover;
+                        border-radius: 50%;
+                    }
+                }
+                .right{
+                    display: grid;
+                    grid-template-rows: 30px auto 70px;
+                    .userName{
+                        font-size: 18px;
+                        font-weight: 500;
+                        line-height: 18px;
+                    }
+                    .commentText{
+                        white-space: pre-wrap;
+
+                    }
+                    .regDate{
+                        line-height: 50px;
+                        font-weight: 400;
+                        font-size: 15px;
+                        color: #858585;
+                    }
+                }
+            }
+        }
+    }
+    .emptyCommentList{
+        height: 200px;
+        width: 100%;
+        line-height: 200px;
+        font-size: 30px;
+        text-align: center;
+    }
+}

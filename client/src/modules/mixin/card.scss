@@ -1,0 +1,6 @@
+@mixin card($height: 600px){
+    width: 1fr;
+    height: $height;
+    border: 1px solid #C7C7C7;
+    background-color: #FFFFFF;
+}

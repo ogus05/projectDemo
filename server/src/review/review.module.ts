@@ -7,11 +7,13 @@ import { UserModule } from "src/user/user.module";
 import { UserService } from "src/user/user.service";
 import { ReviewController } from "./review.controller";
 import { ReviewService } from "./review.service";
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Review, User, ConfirmMail]),
-    UserModule
+    UserModule,
+    HttpModule,
   ],
   controllers: [ReviewController],
   providers: [ReviewService],

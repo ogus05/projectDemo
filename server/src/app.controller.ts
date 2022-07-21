@@ -1,7 +1,9 @@
-import { All, Controller, Get, Render, Req, Res, UseInterceptors } from '@nestjs/common';
+import { All, Controller, Get, Render, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { AppService } from './app.service';
+import { RolesGuard } from './auth/guard/roles.guard';
+import { Roles } from './auth/roles/roles';
 import { JWTInterceptor } from './interceptors/JWT.interceptor';
 
 @Controller()
@@ -18,8 +20,10 @@ export class AppController {
     } else{
       res.render('welcome');
     }
-
   }
+
+
+
 
   @Get('/test')
   @Render('test')

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { LikeComment } from "./likeComment.entity";
 import { Review } from "./review.entity";
 import { User } from "./user.entity";
@@ -7,10 +7,20 @@ import { User } from "./user.entity";
 export class Comment{
     @PrimaryGeneratedColumn()
     ID: number;
-    @Column()
-    regDate: Date;
-    @Column()
+    @CreateDateColumn({
+        type: 'timestamp'
+        
+    })
+    regDate: any;
+    @Column({
+        type: 'text',
+    })
     text: string;
+
+    @Column({
+        type: 'tinyint',
+    })
+    isOpen: boolean;
     
 
     @ManyToOne(() => User)
@@ -32,4 +42,5 @@ export class Comment{
     @OneToMany(() => LikeComment, likeComment => likeComment.comment)
     likeComment: LikeComment;
     
+    count?: number;
 }

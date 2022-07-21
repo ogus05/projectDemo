@@ -25,7 +25,7 @@ import { MailModule } from './mail/mail.module';
         database: 'reader',
         entities: [join(__dirname, 'entities', '**')],
         synchronize: true,
-        
+        timezone: configService.get("TYPEORM_TIMEZONE")
       }),
       inject: [ConfigService]
     }),

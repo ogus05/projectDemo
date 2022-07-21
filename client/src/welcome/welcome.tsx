@@ -11,23 +11,21 @@ const Welcome = () => {
     useEffect(() => {
         Modal.setAppElement("#main");
     })
-
-    const clickLogin = e => {
-        setLoginIsOpen(true);
-    }
     
-    const clickRegister = e => {
-        location.href = '/user/page/register';
-    }
-
     return <>
-    <div id="welcome">
-    <h1>The Reader</h1>
-        <span onClick={e => clickRegister(e)}>Register</span>
-        &nbsp;/&nbsp;
-        <span onClick={e => clickLogin(e)}>Login</span>
+    <img src="/image/page/welcome.png" className="welcomeImage" />
+    <div className="welcome">
+        <div className="logo">
+            <div>The Reader</div>
+        </div>
+        <div className="subLogo">
+            Today's reader Tomorrow's leader
+        </div>
+        <div className="button">
+            <div onClick={e => location.href = '/user/page/login?nav=2'} className="register">회원가입</div>
+            <div onClick={e => location.href = '/user/page/login'} className="login">로그인</div>
+        </div>
     </div>
-    <LoginModal isOpen={loginIsOpen} onRequestClose={() => setLoginIsOpen(false)}></LoginModal>
     </>
 }
 

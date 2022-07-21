@@ -1,38 +1,35 @@
-import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Header from '../modules/header.logined';
-import ProfileEdit from './profileEdit';
-import passwordEncryptor from '../modules/ts/passwordEncryptor';
-import axios from 'axios';
-import UserDelete from './userDelete';
-import { IUserEdit } from '../interfaces/user.i';
+import Footer from '../modules/footer';
+import './scss/userEdit.scss';
+import { Logo } from '../modules/logo';
+import { ProfileEdit } from './profileEdit';
+import { useState } from 'react';
 import PasswordEdit from './passwordEdit';
 
 const UserEdit = () => {
-    const [user, setUser] = useState<IUserEdit>({
-        ID: '', nickname: '', message: '', phone: '', birth: ''
-        , male: false, acceptMail: false, communityID: 1, role: 0
-    });
-
-    useEffect(() => {
-        axios.get(`/user/edit`).then(res => {
-            setUser(res.data);
-            const rejectMail = document.querySelector("#rejectMail");
-            const acceptMail = document.querySelector("#acceptMail");
-            if(res.data.acceptMail === 0 && rejectMail !== null){
-                rejectMail["checked"] = true;
-            } else if(acceptMail !== null){
-                acceptMail["checked"] = true;
-            }
-        })
-    }, []);
-
+    const [nav, setNav] = useState(0);
     return <>
         <Header/>
-        <h1>닉네임 / 비밀번호 수정</h1>
-        <PasswordEdit {...{ID: user.ID}}/>
-        <ProfileEdit {...{user, setUser}}/><br />
-        <UserDelete />
+        <article>
+            <Logo/>
+            <div className="userNav">
+                <div className="title" onClick={e => setNav(0)} id ={nav !== 0 ? "unChecked" : undefined}>
+                    프로필 수정
+                </div>
+                <div className="title" onClick={e => setNav(1)} id ={nav !== 1 ? "unChecked" : undefined}>
+                    비밀번호 수정
+                </div>
+            </div>
+            <div className="card">
+                {nav === 0 ? 
+                <ProfileEdit/>
+                : <PasswordEdit/>
+                }
+            </div>
+            
+        </article>
+        <Footer/>
     </>
 }
 

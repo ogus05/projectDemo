@@ -1,28 +1,50 @@
-body{
-    width: 900px;
-    margin: auto;
+@font-face{
+    font-family: 'pretendard';
+    src: url('../../modules/fonts/Pretendard-Regular.otf')
 }
 
-header{
-    height: 100px;
-    width: 100%;
-    #title{
-        display: inline;
-        width: 50%;
-        cursor: pointer;
-    }
-    #myLink{
-        display: grid;
-        grid-template-columns: repeat(3, minmax(100px, auto));
-        grid-template-rows: repeat(1, auto);
-        float: right;
-        div{
-            text-align: center;
-            width: auto;
-            cursor: pointer;
-            border: 1px solid black;
-        }
-    }
-    border-bottom: 1px black solid;
-    margin-bottom: 10px;
+@font-face{
+    font-family: 'pretendard-bold';
+    src: url('../../modules/fonts/Pretendard-Bold.otf')
 }
+
+*{
+    font-family: 'pretendard';
+}
+
+
+body{
+    margin: 0;
+    background-color: #FAF9F9;
+    #main{
+        header{
+            height: 30px;
+            width: 100%;
+            background: #74603B;
+            #myLink{
+                width: 1280px;
+                height: 100%;
+                margin: auto;
+                display: grid;
+                grid-template-columns: repeat(3, 150px);
+                grid-template-rows: repeat(1, 100%);
+                align-items: center;
+                justify-content: end;
+                div{
+                    color: white;
+                    float: right;
+                    text-align: center;
+                    width: auto;
+                    cursor: pointer;
+                }
+            }
+        }
+        article{
+            width: 1280px;
+            margin: auto;
+        }
+    }   
+    
+}
+
+

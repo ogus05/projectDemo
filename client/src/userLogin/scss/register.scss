@@ -1,0 +1,186 @@
+@import './mixin.scss';
+@import '../../modules/mixin/modal.scss';
+#main{
+    .register{
+        form{
+            .registerTitle{
+                text-align: center;
+                font-size: 43px;
+                color: #000000;
+                font-weight: 700;
+            }
+            @include grid(100px, 6);
+            .userIdBlock, .passwordBlock, .confirmPasswordBlock, .nicknameBlock{
+                @include block();
+            }
+            .submitBlock{
+                width: 100%;
+                height: 100%;
+                display: grid;
+                align-items: center;
+                grid-template-rows: 50px auto;
+                .acceptButtonBlock{
+                    padding-top: 10px;
+                    display: grid;
+                    grid-template-rows: auto 20px;
+                    grid-template-columns: 20px auto;
+                    align-items: center;
+                    gap: 5px;
+                    .text{
+                    }
+                    input[type="checkbox"]{
+                        border: 1px solid #9C9C9C;
+                        border-radius: 4px;
+                        width: 17px;
+                        height: 17px;
+                    }
+                    .alert{
+                        color: #D85050;
+                        font-size: 14px;
+                        font-weight: 400;
+                        grid-column: 1/3;
+                    }
+                }
+                .submitButton{
+                    @include submitBlock();
+
+                }
+            }
+        }
+    }
+}
+
+.registerModal{
+    @include modal();
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 200px 250px;
+    .modalBlock{
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: 50px 75px 75px;
+        .exitButtonBlock{
+            div{
+                color: #6E6D6D;
+                font-size: 30px;
+                margin-left: auto;
+                height: 50px;
+                width: 50px;
+                text-align: center;
+                line-height: 50px;
+            }
+        }
+        .mainText{
+            text-align: center;
+            font-size: 35px;
+            font-weight: 700;
+            line-height: 50px;
+            color: #101010;
+        }
+        .subText{
+            text-align: center;
+            font-size: 22px;
+            line-height: 30px;
+            font-weight: 500;
+            color: #6F6D6D;
+        }
+    }
+    .acceptBlock{
+        display: grid;
+        grid-template-columns: 80%;
+        grid-template-rows: 75px 200px;
+        justify-content: center;
+        .acceptAll{
+            display: grid;
+            grid-template-columns: 40px auto;
+            gap: 0 10px;
+            line-height: 50px;
+            border-bottom: 3px solid #D3D3D3;
+            .checkButton{
+                font-size: 30px;
+                div{
+                    width: 40px;
+                    height: 40px;
+                    cursor: pointer;
+                }
+            }
+            .text{
+                font-weight: 700;
+                font-size: 28px;
+            }
+        }
+        .accept{
+            display: grid;
+            grid-template-columns: 100%;
+            grid-template-rows: 60px 60px;
+            .acceptOne{
+                display: grid;
+                grid-template-columns: 40px auto;
+                gap: 0 10px;
+                line-height: 70px;
+                .checkButton{
+                    font-size: 30px;
+                    div{
+                        width: 40px;
+                        height: 40px;
+                        cursor: pointer;
+                    }
+                }
+                .text{
+                    font-weight: 500;
+                    font-size: 19px;
+                    color: #747373;
+                }
+            }
+        }
+    }
+    .completeButton{
+        @include button();
+    }
+}
+.completeModal{
+    @include modal();
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 200px 120px 70px;
+    justify-content: center;
+    align-items: center;
+    .logo{
+        text-align: center;
+        font-size: 100px;
+        color: #74603B;
+    }
+    .mainText{
+        text-align: center;
+        font-size: 35px;
+        font-weight: 700;
+        line-height: 50px;
+        color: #101010;
+    }
+    .subText{
+        text-align: center;
+        font-size: 22px;
+        line-height: 30px;
+        font-weight: 500;
+        color: #6F6D6D;
+    }
+    .backToLogin{
+        position: absolute;
+        width: 100%;
+        height: 80px;
+        bottom: 0;
+        background-color: #74603B;
+        border: 1px solid #655332;
+        border-radius: 0 0 14px 14px;
+        cursor: pointer;
+        display: grid;
+        align-items: center;
+        div{
+            font-weight: 400;
+            font-size: 27px;
+            color: #FFFFFF;
+            text-align: center;
+        }
+
+    }
+}

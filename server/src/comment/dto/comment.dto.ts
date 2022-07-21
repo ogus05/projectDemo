@@ -1,10 +1,17 @@
-import { IsNumber, IsString } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
 
 export class PostCommentDto{
     @IsNumber()
     reviewID: number;
     @IsString()
+    @IsNotEmpty({
+        message: '댓글 내용을 작성해 주세요.'
+    })
+    @Transform(({value}) => value?.trim())
     text: string;
+    @IsBoolean()
+    isOpen: boolean;
 
     userNumber: number;
 }
@@ -18,14 +25,7 @@ export class PutCommentDto{
     userNumber: number;
 }
 
-export class DeleteCommentDto{
-    @IsNumber()
-    commentID: number;
-
-    userNumber: number;
-}
-
-export class LikeCommentDto{
+export class PostLikeCommentDto{
     @IsNumber()
     commentID: number;
 

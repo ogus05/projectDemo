@@ -1,0 +1,58 @@
+@import '../../modules/mixin/title.scss';
+@import '../../modules/mixin/card.scss';
+
+article{
+    .title{
+        @include title();
+    }
+    .card{
+        @include card(auto);
+        .review{
+            display: grid;
+            grid-template-columns: 100%;
+            grid-template-rows: 100px 140px;
+            padding: 100px;
+            &Title{
+                border-bottom: 1px solid #B1B1B1;
+                input[type="text"]{
+                    line-height: 100px;
+                    font-size: 40px;
+                    background-color: inherit;
+                    padding: 0px;
+                    border: 0;
+                    outline: none;
+                    padding-left: 10px;
+                    width: 100%;
+                }
+            }
+            &Topic{
+                display: grid;
+                padding: 0 20px;
+                grid-template-columns: repeat(4, 25%);
+                grid-template-rows: repeat(2, 50%);
+                justify-content: center;
+                align-items: center;
+                font-size: 17px;
+                input[type="checkbox"]{
+                    width: 17px; height: 17px;
+                    border: 1px solid #9C9C9C;
+                    border-radius: 4px;
+                }
+            }
+            &Button{
+                .button{
+                    float: right;
+                    width: 128px;
+                    height: 56px;
+                    line-height: 56px;
+                    text-align: center;
+                    margin-top: 25px;
+                    background-color: #74603B;
+                    color: #FFFFFF;
+                    font-size: 20px;
+                    border-radius: 4px;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,29 @@
+@import '../../modules/mixin/title.scss';
+#main{
+    article{
+        padding-bottom: 60px;
+        .userNav{
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(2, 310px);
+            & > div{
+                cursor: pointer;
+            }
+            #unChecked{
+                background-color: inherit;
+                color: #AEABAB;
+                border: 1px solid #AEABAB;
+            }
+            .title{
+                @include title();
+            }
+        }
+        .card{
+            width: 100%;
+            height: 670px;
+            background: #F5F6F7;
+            border: 1px solid #DADADA;
+        }
+
+    }
+}

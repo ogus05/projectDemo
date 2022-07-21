@@ -29,83 +29,63 @@ export class UserService{
         return user;
     }
 
-    async validateUserByNumber(number: number, password: string){
-        const user = await this.userRepository.createQueryBuilder()
-        .where("number = :keyNumber", {keyNumber: number})
-        .andWhere("password = :keyPassword", {keyPassword: password})
-        .getOne();
-        return user;
-    }
 
     async checkUserDuplicate(ID: string){
-        return await this.userRepository.findOne(ID);
+        return await this.userRepository.findOne({ID});
     }
 
-    async getUserIDByNumber(number: number){
-        const user = await this.userRepository.findOne({number});
-        if(!user) return null;
-        else return user.ID;
-    }
-
-    async getNumberByUserID(userID: string){
-        const user = await this.userRepository.findOne({ID: userID});
-        if(!user) return null;
-        else return user.ID;
-    }
-    
-    //3th param. 0. default, 1. info, 2. edit 
-    async getUserByNumber(number: number, community: boolean, type: number = 0){
+    async getUserCommunityLeader(userNumber: number){
         try{
-            let qb = this.userRepository.createQueryBuilder(`user`);
-            switch(type){
-                case 2: {
-                    qb = qb.select(['user.ID', 'user.nickname', 'user.message', 'user.phone', 'user.birth',
-                    'user.male', 'user.acceptMail', 'user.role']);
-                    break;
-                } case 1:{
-                    qb = qb.select(['user.nickname', 'user.regDate', 'user.message',
-                    'user.birth', 'user.male', 'user.image', 'user.communityID']);
-                    break;
-                } case 0:{
-                    qb = qb.select(['user.number', 'user.nickname', 'user.communityID', 'user.role']);
-                    break;
-                }
-            }
-            if(community) qb = qb.leftJoinAndSelect('user.community', 'community');
-            const user = await qb.where(`user.number = :keyNumber`, {keyNumber: number})
+            const data = await this.userRepository.createQueryBuilder('user')
+            .select(['user.number', 'community.ID', 'community.leaderNumber'])
+            .leftJoin('user.community', 'community')
+            .where('user.number = :keyUserNumber', {keyUserNumber: userNumber})
             .getOne();
-            return user;
+            return data;
         } catch(e){
-            console.log("getUserByNumber. " + e);
+            console.log('getUserCommunity. ' + e);
             throw e;
         }
     }
 
-    async getUserByNickname(nickname: string, community: boolean, info: boolean){
+    async getUserInfo(userNumber: number){
         try{
-            let qb = this.userRepository.createQueryBuilder(`user`)
-            .select(['user.nickname', 'user.communityID']);
-            if(community) qb = qb.leftJoinAndSelect('user.community', 'community');
-            if(info) qb = qb.addSelect(['user.phone', 'user.image', 'user.message', 'user.regDate', 
-            'user.birth', 'user.male', 'user.acceptMail']);
-            const user = await qb.where(`user.nickname = :keyNickname`, {keyNickname: nickname})
+            const data = await this.userRepository.createQueryBuilder('user')
+            .select(['user.nickname', 'user.communityID', 'user.message', 'user.regDate', 'community.name', 'user.role'])
+            .leftJoin('user.community', 'community')
+            .where(`user.number = :keyUserNumber`, {keyUserNumber: userNumber})
             .getOne();
-            return user;
+            return data;
         } catch(e){
-            console.log("getUserByNickname. " + e);
+            console.log("getUserInfo." + e);
             throw e;
         }
     }
 
-    async createUser(dto: PostUserDto){
-        if(await this.checkUserDuplicate(dto.ID)){
-            throw new BadRequestException("존재하는 아이디입니다.");
+    async getUserCommunityInfo(userNumber: number){
+        try{
+            const data =await this.userRepository.createQueryBuilder('user')
+            .select(['user.number', 'user.nickname', 'user.communityID'])
+            .where('user.number = :keyUserNumber', {keyUserNumber: userNumber})
+            .getOne();
+            return data;
+        } catch(e){
+            console.log("getUserCommunityInfo. " + e);
+            throw e;
         }
-        if(await this.getUserByNickname(dto.nickname, false, false)){
-            throw new BadRequestException("존재하는 닉네임입니다.");
+    }
+
+    async getUserEdit(userNumber: number){
+        try{
+            const user = await this.userRepository.createQueryBuilder('user')
+            .select([`user.message`, `user.role`, `user.nickname`, `user.number`])
+            .where(`user.number = :keyUserNumber`, {keyUserNumber: userNumber})
+            .getOne();
+            return user;
+        } catch(e){
+            console.log("getUserEdit" + e);
+            throw e;
         }
-        const user = this.userRepository.create(dto);
-        return (await this.userRepository.save(user));
     }
 
     async getConfirmMail(token: string){
@@ -114,61 +94,72 @@ export class UserService{
         });
         return data;
     }
+    
+    async createUser(dto: PostUserDto){
+        if(await this.checkUserDuplicate(dto.ID)){
+            throw new BadRequestException("존재하는 아이디입니다.");
+        }
+        if((await this.userRepository.findOne({nickname: dto.nickname}))){
+            throw new BadRequestException("존재하는 닉네임입니다.");
+        }
+        const user = this.userRepository.create(dto);
+        await this.userRepository.save(user);
+        return user;
+    }
+
 
     async createConfirmMail(userID: string, type: number){
         const token = crypto.randomInt(1000000, 9999999).toString();
         const user = await this.userRepository.findOne({ID: userID});
-        if(!user) throw new BadRequestException("존재하지 않는 이메일입니다.");
+        if(!user) throw new BadRequestException(["ID: 존재하지 않는 이메일입니다."]);
+        await this.deleteConfirmMail(user.number);
         const confirmMail = this.confirmMailRepository.create({
             user,
             type,
             token
         });
         await this.confirmMailRepository.insert(confirmMail);
-        return token;
+        return {user, token};
     }
 
-    async deleteConfirmMail(userID: string){
-        const user = await this.userRepository.findOne({ID: userID});
-        await this.confirmMailRepository.delete({
-            user
-        });
-    }
-
-    async setUserRole(userID: string, role: number){
-        await this.userRepository.update({ID: userID}, {
+    async updateUserRole(userNumber: number, role: number){
+        await this.userRepository.update({number: userNumber}, {
             role,
         });
     }
 
     async updateUser(dto: PutUserDto){
         await this.userRepository.update({number: dto.number}, {
-            nickname: dto.nickname,
             message: dto.message,
-            acceptMail: dto.acceptMail,
         })
-    }
-
-    async updateUserImage(number: number, filename: string = this.configService.get("USER_IMAGE")){
-        await this.deleteImage(number);
-        await this.userRepository.update({number}, {
-            image: filename
-        });
     }
 
     async updateUserPassword(dto: PutPasswordDto){
         try{
-            if(!(await this.validateUser(dto.ID, dto.currentPassword))
-            && dto.newPassword !== this.configService.get("EDIT_PASSWORD")){
-                throw new BadRequestException("현재 비밀번호가 정확하지 않습니다.");
+            //비밀번호 변경 메일 보낼 때,
+            if(dto.newPassword === this.configService.get("EDIT_PASSWORD")){
+                await this.userRepository.update({number: dto.number}, {
+                    password: dto.newPassword,
+                });
             }
-            if(dto.newPassword !== this.configService.get("EDIT_PASSWORD")
-            && dto.currentPassword === dto.newPassword){
-                throw new BadRequestException("현재 비밀번호와 이전 비밀번호가 같습니다.");
+            //비밀번호 patch사이트에서 비밀번호 변경 요청 보낼 때,
+            else if(dto.currentPassword === this.configService.get("EDIT_PASSWORD")){
+                const affected = (await this.userRepository.update({ID: dto.ID, number: dto.number, password: dto.currentPassword },{
+                    password: dto.newPassword
+                })).affected;
+                if(affected === 0){
+                    throw new BadRequestException("정보가 정확하지 않습니다.");
+                }
             }
-            await this.userRepository.update({ID: dto.ID}, {
-                password: dto.newPassword,
-            });
+            //일반 put요청의 경우.
+            else{
+                const affected = (await this.userRepository.update({ID: dto.ID, number: dto.number, password: dto.currentPassword}, {
+                    password: dto.newPassword
+                })).affected;
+                if(affected === 0){
+                    throw new BadRequestException("정보가 정확하지 않습니다.");
+                }
+            }
         } catch(e){
             console.log("updateUserPassword:\n" + e);
             throw e;
@@ -176,7 +167,7 @@ export class UserService{
     }
     
     async deleteUser(number: number){
-        const user = await this.getUserByNumber(number, true);
+        const user = await this.getUserInfo(number);
         if(user.communityID !== 1){
             throw new BadRequestException("커뮤니티 탈퇴 후 계정 삭제가 가능합니다.");
         }
@@ -184,17 +175,19 @@ export class UserService{
         await this.userRepository.delete({number: number});
     }
 
+    async deleteConfirmMail(userNumber: number){
+        const user = await this.userRepository.findOne({number: userNumber});
+        await this.confirmMailRepository.delete({
+            user
+        });
+    }
+
     async deleteImage(number: number){
-        const DBfilename = (await this.userRepository.createQueryBuilder('user')
-        .select(['user.image'])
-        .where('number = :keyNumber', {keyNumber: number}).getOne()).image;
-        if(DBfilename !== this.configService.get("USER_IMAGE")){
-            const DBfileDir = this.configService.get("MULTER_DEST") + DBfilename;
-            if(fs.existsSync(DBfileDir)){
-                fs.rm(DBfileDir, () => {});
-            } else{
-                console.log("파일이 존재하지 않아서 삭제가 불가능합니다. " + this.configService.get("MULTER_DEST") + DBfilename);
-            }
+        const DBfileDir = this.configService.get("MULTER_DEST_USER") + number;
+        if(fs.existsSync(DBfileDir)){
+            fs.rm(DBfileDir, () => {});
+        } else{
+            console.log("파일이 존재하지 않아서 삭제가 불가능합니다. \n" + DBfileDir);
         }
     }
 }

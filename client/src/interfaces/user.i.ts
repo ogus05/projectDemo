@@ -1,13 +1,8 @@
 export interface IUserEdit{
-    ID: string;
-    nickname: string;
     message: string;
-    phone: string;
-    birth: string;
-    male: boolean;
-    acceptMail: boolean;
-    communityID: number;
     role: number;
+    nickname: string;
+    number: number;
 }
 
 export interface IUserInfo{
@@ -18,9 +13,14 @@ export interface IUserInfo{
     male: boolean;
 }
 
-export interface IUser{
+export interface IUserCommunityInfo{
     number: number;
     nickname: string;
     communityID: number;
-    role: number;
+}
+
+export interface IUserConfirmInfo{
+    type: number,
+    nickname: string,
+    userNumber: number,
 }

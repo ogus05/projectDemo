@@ -1,0 +1,47 @@
+footer{
+    margin-top: 100px;
+    background-color: rgba(82, 67, 40, 0.1);
+    & > .footerArticle{
+        margin: auto;
+        display: grid;
+        width: 1280px;
+        grid-template-columns: 450px 1fr;
+        grid-template-rows: 140px 100px;
+        .image{
+            margin: auto;
+            img{
+                width: 370px;
+                height: 100px;
+            }
+        }
+        .information{
+            grid-column: 2 / 3;
+            grid-row: 1 / 3;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(4, 50px);
+            align-items: center;
+            margin: auto 0;
+        }
+        .link{
+            display: grid;
+            grid-template-rows: 1fr;
+            grid-template-columns: repeat(55px);
+            div{
+                margin: 10px;
+                
+                width: 55px;
+                height: 55px;
+                border-radius: 50%;
+                display: grid;
+                justify-content: center;
+                align-items: center;
+            }
+            .instagram{
+                color: #FFFFFF;
+                background-color: #524328;
+                font-size: 40px;
+            }
+        }
+    }
+}

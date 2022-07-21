@@ -8,10 +8,10 @@ export class Review{
     @PrimaryGeneratedColumn()
     ID: number;
     @Column()
-    category: string;
-    @Column()
     title: string;
-    @Column()
+    @Column({
+        type: 'text',
+    })
     text: string;
 
     @ManyToOne(() => User)
@@ -42,12 +42,12 @@ export class Review{
     })
     ISBN: string;
     
-    @CreateDateColumn({
-        name: "regDate"
+    @Column({
+        name: "regDate",
+        type: "timestamp",
     })
     regDate: Date;
 
     @OneToMany(() => Comment, comment => comment.review)
     comment: Comment;
-
 }

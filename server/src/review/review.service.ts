@@ -13,32 +13,37 @@ export class ReviewService{
         private readonly userService: UserService,
     ){}
 
-    async getReviewByID(reviewID: number){
+    async getReviewInfo(reviewID: number){
         const review = await this.reviewRepository.createQueryBuilder('review')
-        .select(["review.title", "review.text", "review.visit", "review.userID", "review.book_title",
-        "review.book_cover", "review.book_author"])
-        .where("ID = :keyReviewID", {keyReviewID: reviewID})
+        .select(["review.ID", "review.title", "review.text", "review.regDate", "user.nickname", "user.number"])
+        .leftJoin("review.user", "user")
+        .where("review.ID = :keyReviewID", {keyReviewID: reviewID})
         .getOne();
-        return review;
+        const count = await this.reviewRepository.count();
+        return {review, count};
     }
 
 
-    //TODO. orderBy절 bookmark 및 comment 추가 where 추가.
     async getReviewList(dto: GetReviewListDto){
-        const reviewList = await this.reviewRepository.createQueryBuilder()
-        .select(["review.title", "review.visit", "review.userID", "review.isbn", 
-        "review.reg_date"])
-        .limit(dto.limit)
+        let qb = this.reviewRepository.createQueryBuilder('review')
+        .select(['review.ISBN', 'review.title', 'user.nickname', 'community.name', 'review.regDate',
+        'review.ID'])
+        .leftJoin('review.user', 'user')
+        .leftJoin('review.community', 'community')
         .offset(dto.offset)
-        .orderBy(dto.orderBy)
-        .where(dto.where)
-        .getMany();
-        return reviewList;
+        .limit(dto.limit);
+        if(!dto.where || !dto.query){
+            return await qb.getManyAndCount();
+        } else if(dto.where ==="community"){
+            return await qb.where('community.ID = :keyCommunityID', {keyCommunityID: dto.query}).getManyAndCount()
+        } else if(dto.where ==="user"){
+            return await qb.where('user.number = :keyUserNumber', {keyUserNumber: dto.query}).getManyAndCount();
+        }
     }
 
-    async postReview(dto: PostReviewDto){
-        const userID = await this.userService.getUserByNumber(dto.userNumber, false);
-        if(userID.communityID === 1){
+    async createReview(dto: PostReviewDto){
+        const user = await this.userService.getUserInfo(dto.userNumber);
+        if(user.communityID === 1){
             throw new BadRequestException("커뮤니티에 가입하지 않으면 글을 쓸 수 없습니다.");
         }
         const review = this.reviewRepository.create(dto);

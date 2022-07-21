@@ -1,0 +1,85 @@
+@import '../../modules/mixin/title';
+
+
+.community{
+    position: relative;
+    width: 1fr;
+    height: 300px;
+    border: 1px solid #C8C6C6;
+    background-color: #FFFFFF;
+    display: grid;
+    grid-template-columns: 150px 250px 500px 300px;
+    grid-template-rows: repeat(1, 1fr);
+    align-items: center;
+    justify-content: center;
+    &Image{
+        .block{
+            width: 110px;
+            height: 110px;
+            position: relative;
+            img{
+                width: 110px;
+                height: 110px;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+            .communityImageEdit{
+                z-index: 1;
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width: 30px;
+                height: 30px;
+                color: white;
+                background-color: #525252;
+                border-radius: 50%;
+                display: grid;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    }
+    &Info{
+        .communityName{
+            font-size: 25px;
+            font-weight: 700;
+        }
+        .leaderNickname{
+            font-size: 15px;
+        }
+    }
+    &Message{
+        padding-right: 100px;
+        display:-webkit-box;
+        -webkit-line-clamp:5;
+        -webkit-box-orient:vertical;
+        line-height:20px;
+        overflow:hidden;
+        white-space: pre-wrap;
+        text-overflow:ellipsis;
+        font-size: 18px;
+        font-weight: 400;
+    }
+    &Button{
+        position: relative;
+        display: grid;
+        gap: 11px 0;
+        button{
+            width: 100%;
+            height: 50px;
+            background-color: #FFFFFF;
+            border: 1px solid #C4C4C4;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    }
+    .leaveCommunity{
+        color: #827D7D;
+        font-size: 14px;
+        position: absolute;
+        bottom: 50px;
+        right: 80px;
+        cursor: pointer;
+    }
+}

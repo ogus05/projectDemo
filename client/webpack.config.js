@@ -51,6 +51,12 @@ module.exports = {
                     'css-loader',
                     'sass-loader'
                 ]
+            },
+            {
+                test:/\.(eot)$/,
+                use: [
+                    'file-loader',
+                ]
             }
         ]
     }

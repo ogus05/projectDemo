@@ -19,10 +19,9 @@ import { ConfirmMail } from "src/entities/confirmMail.entity";
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
                 storage: diskStorage({
-                    destination: configService.get("MULTER_DEST"),
+                    destination: configService.get("MULTER_DEST_USER"),
                     filename: (req, file, cb) => {
-                        const filename = (new Date()).getTime() + "_" + req.user.number + ".jpeg";
-                        cb(null, filename);
+                        cb(null, req.user.number.toString());
                     }
                 })
             }),

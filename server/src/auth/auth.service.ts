@@ -17,7 +17,7 @@ export class AuthService{
 
     handleRefreshToken(){
         const issueToken = async user => {
-            const payload = { userID: user.number, sub: user.nickname};
+            const payload = { number: user.number, sub: user.nickname};
             const refreshToken = this.jwtService.sign(payload, {expiresIn: this.config.get("REFRESH_EXPIRE")});
             pbkdf2(refreshToken, String(user.number), 100, 64, 'sha512', async (err, key) => {
                 if(err) {
@@ -33,7 +33,6 @@ export class AuthService{
         }
 
         const deleteToken = async user => {
-            console.log(user);
             await this.userRepository.update({
                 number: user.number,
             }, {

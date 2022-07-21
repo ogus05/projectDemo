@@ -6,16 +6,20 @@ import { PostUserDto } from 'src/user/dto/user.dto';
 export class MailService {
     constructor(private mailerService: MailerService) {}
 
-    async sendUserConfirmation(token: string, userID){
-        const url = `localhost:3000/user/confirm?token=${token}`;
-
+    async sendUserConfirmation(token: string, type: number, userID: string, userName: string){
         await this.mailerService.sendMail({
-            to: 'ogus05@naver.com',
+            to: 'ogus05@naver.com',     //userID로 바꿔야함
             subject: 'the reader',
-            template: 'confirm',
+            template: (type == 0) ? 'register' : 'findPassword',
             context: {
-                url,
-            }
+                url: `http://localhost:3000/user/page/confirm?token=${token}`,
+                userName,
+            },
+            attachments: [{
+                filename: 'mailPage.png',
+                path: './src/mail/image/mailPage.png',
+                cid: 'mailPage'
+            }]
         })
     }
 }

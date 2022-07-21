@@ -3,8 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
-import { UserRole } from "src/auth/roles/roles";
-import { JWTInterceptor } from "src/interceptors/JWT.interceptor";
+import { RolesGuard } from "src/auth/guard/roles.guard";
+import { Roles, UserRole } from "src/auth/roles/roles";
 import { MailService } from "src/mail/mail.service";
 import { PostUserDto, PutPasswordDto, PutUserDto } from "./dto/user.dto";
 import { UserService } from "./user.service";
@@ -17,18 +17,10 @@ export class UserController{
         private mailService: MailService,
     ){}
 
-
-    @Get()
-    @UseGuards(JwtAuthGuard)
-    async getUser(@Req() req: Request, @Res() res: Response){
-        const user = await this.userService.getUserByNumber(req.user.number, false);
-        res.send(user);
-    }
-
     @Get('edit')
     @UseGuards(JwtAuthGuard)
     async getUserEditInfo(@Req() req: Request, @Res() res: Response){
-        const user = await this.userService.getUserByNumber(req.user.number, false, 2);
+        const user = await this.userService.getUserEdit(req.user.number);
         res.send(user);
     }
 
@@ -36,20 +28,49 @@ export class UserController{
     @UseGuards(JwtAuthGuard)
     async getUserInfo(@Param('Number') number: number, @Req() req: Request, @Res() res: Response){
         if(isNaN(number)) number = req.user.number;
-        const user = await this.userService.getUserByNumber(number, false);
+        const user = await this.userService.getUserInfo(number);
         if(!user) throw new BadRequestException("존재하지 않는 유저입니다.");
         res.send(user);
     }
 
+    @Get('community/info')
+    @UseGuards(JwtAuthGuard)
+    async getUserCommunityInfo(@Req() req: Request, @Res() res: Response){
+        const user = await this.userService.getUserCommunityInfo(req.user.number);
+        if(!user) throw new BadRequestException("존재하지 않는 유저입니다.");
+        res.send(user);
+    }
+
+    @Get('confirm/:token')
+    async getUserConfirmInfo(@Param('token') token: string, @Req() req: Request, @Res() res: Response){
+        const confirmInfo = await this.userService.getConfirmMail(token);
+        if(!confirmInfo) throw new BadRequestException(["token: 잘못된 토큰입니다."]);
+        if(confirmInfo.type === 0){
+            await this.userService.updateUserRole(confirmInfo.userNumber, 1);
+            await this.userService.deleteConfirmMail(confirmInfo.userNumber);
+        } else if(confirmInfo.type === 1){
+        }
+        res.send({
+            type: confirmInfo.type,
+            nickname: confirmInfo.user.nickname,
+            userNumber: confirmInfo.userNumber
+        });
+    }
+
+    //회원가입
     @Post()
     @HttpCode(201)
     async postUser(@Body() body: PostUserDto, @Req() req: Request, @Res() res: Response){
+        if((await this.userService.checkUserDuplicate(body.ID))){
+            throw new BadRequestException(["ID: 이미 존재하는 이메일입니다."]);
+        }
         const user = await this.userService.createUser(body);
-        const token = await this.userService.createConfirmMail(user.ID, 0);
-        this.mailService.sendUserConfirmation(token, body.ID);
+        const {token} = await this.userService.createConfirmMail(user.ID, 0);
+        this.mailService.sendUserConfirmation(token, 0, user.ID, user.nickname);
         res.send();
     }
 
+    //업데이트유저
     @Put()
     @HttpCode(201)
     @UseGuards(JwtAuthGuard)
@@ -59,15 +80,16 @@ export class UserController{
         res.send();
     }
 
+    //업데이트유저이미지
     @Put('image')
     @HttpCode(201)
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('image'))
     async putUserImage(@UploadedFile() image: Express.Multer.File, @Req() req: Request, @Res() res: Response){
-        await this.userService.updateUserImage(req.user.number, image.filename);
         res.send();
     }
 
+    //업데이트 유저 비밀번호(앎)
     @Put('password')
     @HttpCode(201)
     @UseGuards(JwtAuthGuard)
@@ -76,15 +98,17 @@ export class UserController{
         res.send();
     }
 
+    //업데이트 유저 비밀번호(모름)
     @Patch('password')
     @HttpCode(201)
     async patchUserPassword(@Body() body: PutPasswordDto, @Req() req: Request, @Res() res: Response){
         body.currentPassword = this.configService.get("EDIT_PASSWORD");
-        await this.userService.deleteConfirmMail(body.ID);
+        await this.userService.deleteConfirmMail(body.number);
         await this.userService.updateUserPassword(body);
         res.send();
     }
 
+    //회원탈퇴
     @Delete()
     @UseGuards(JwtAuthGuard)
     async deleteUser(@Req() req: Request, @Res() res: Response){
@@ -98,44 +122,35 @@ export class UserController{
         send();
     }
 
-    @Get('confirm')
-    async getConfirmMail(@Query('token') token, @Req() req: Request, @Res() res: Response){
-        const data = await this.userService.getConfirmMail(token);
-        if(!data){
-            throw new NotFoundException("잘못된 요청입니다.");
-        }
-        let view = '';
-        if(data.type === 0) {
-            view = "confirmRegister";
-            await this.userService.setUserRole(data.user.ID, UserRole.CERTIFIED);
-        }  else if(data.type === 1){
-            view = "passwordEdit";
-            await this.userService.updateUserPassword({
-                ID: data.user.ID,
-                currentPassword: '',
-                newPassword: this.configService.get("EDIT_PASSWORD")
-            });
-        }
-        res.render(view);
-    }
-
+    //confirmMail 생성
     @Post('confirm')
-    async postConfirmMail(@Query('type') type: number, @Body('userID') userID: string, @Req() req: Request, @Res() res: Response){
-        const token = await this.userService.createConfirmMail(userID, type);
-        this.mailService.sendUserConfirmation(token, userID);
+    @HttpCode(201)
+    async postConfirmMail(@Body('type') type: number, @Body('ID') ID: string, @Req() req: Request, @Res() res: Response){
+        const {user, token} = await this.userService.createConfirmMail(ID, type);
+        this.mailService.sendUserConfirmation(token, type, user.ID, user.nickname);
+        await this.userService.updateUserPassword({
+            ID: user.ID,
+            currentPassword: '',
+            number: user.number,
+            newPassword: this.configService.get("EDIT_PASSWORD"),
+        })
         res.send();
     }
 
-    @Get('/token/:Token')
-    async getUserIDByToken(@Param("Token") token: string, @Req() req: Request, @Res() res: Response){
-        const confirmMail = await this.userService.getConfirmMail(token);
-        if(!confirmMail) throw new BadRequestException("잘못된 요청입니다.");
-        res.send({userID: confirmMail.user.ID});
+    @Get('/page/confirm')
+    @Render('confirm')
+    async getConfirmMail(){
     }
     
     @Get('/page/register')
     @Render('userRegister')
     async getUserRegisterPage(){
+    }
+
+    @Get('/page/login')
+    @Render('userLogin')
+    async getUserLogin(){
+        
     }
 
     @Get('/page/info')
@@ -155,15 +170,11 @@ export class UserController{
         }
     }
 
-    @Get('/page/help')
-    @Render('userHelp')
-    async getUserHelpPage(){
-    }
-
     @Get('/page/edit')
     @Render('userEdit')
-    @UseGuards(JwtAuthGuard)
-    async getUserEditPage(@Req() req: Request){
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(1)
+    async getUserEditPage(){
     }
 
     @Get('/page/delete')

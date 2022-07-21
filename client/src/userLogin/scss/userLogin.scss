@@ -1,0 +1,55 @@
+
+@font-face{
+    font-family: 'pretendard';
+    src: url('../../modules/fonts/Pretendard-Regular.otf')
+}
+
+*{
+    font-family: 'pretendard';
+
+    margin:0; padding: 0; box-sizing: border-box;
+}
+#main{
+    display: grid;
+    grid-template-columns: 1fr 440px;
+    align-items: center;
+    height: 100vh;
+}
+@media (max-width: 600px){
+    #main{
+        font-family: 'pretendard';
+        display: grid;
+        grid-template-columns: 0px 1fr;
+        align-items: center;
+        height: 100vh;
+    }
+}
+
+.image-section {
+    background: url("../../../public/image/page/login.jpg") no-repeat left;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+}
+
+.user-section{
+    margin: auto;
+    width: 100%;
+    .caption {
+        padding-top: 28px;
+        text-align: center;
+        span {
+            font-size: 16px;
+            color: #7D7D7D;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        ::after {
+            content: 'ㅣ';
+        }
+        :last-child::after{
+            content: '';
+        }
+    }
+}
+

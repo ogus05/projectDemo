@@ -1,41 +1,72 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom'
-import { ReviewList } from '../modules/reviewList';
 import Header from '../modules/header.logined';
+import Footer from '../modules/footer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import "./scss/main.scss";
+import { Home } from './home';
 
 const Main = () => {
-    const [arrange, setArrange] = useState(0);
-    const [category, setCategory] = useState(0);
-
-    const onClickArrange = e => {
-        e.preventDefault();
-        console.log(arrange);
-        console.log(category);
+    const [text, setText] = useState('');
+    const [nav, setNav] = useState(0);
+    const onClickSearch = e => {
+        alert(text);
     }
+    const onClickNav0 = e => {
+        e.preventDefault();
 
+        setNav(0);
+    }
+    const onClickNav1 = e => {
+        e.preventDefault();
+        location.href = '/community/page/info';
+        setNav(1);
+    }
+    const onClickNav2 = e => {
+        e.preventDefault();
+        location.href = '/community/page/search';
+        setNav(2);
+    }
     return <>
         <Header />
-        <h1>The Reader 인기 리뷰</h1>
-        <div>
-            <p>나열 순서:&nbsp;&nbsp;
-            <select onChange={e => setArrange(e.target.value as any)}>
-                <option value={0}>선택</option>
-                <option value={1}>조회</option>
-                <option value={2}>좋아요</option>
-                <option value={3}>등등</option>
-            </select>
-            </p>
-            <p>카테고리 선택:&nbsp;&nbsp;
-            <select onChange={e => setCategory(e.target.value as any)}>
-                <option value={0}>선택</option>
-                <option value={1}>카테고리 1</option>
-                <option value={2}>카테고리 2</option>
-                <option value={3}>등등</option>
-            </select>
-            </p>
-            <button onClick={onClickArrange}>정렬하기</button>
+        <div className="top">
+            <div className="block">
+                <div className="logo" onClick={e => {location.href = '/'}}>
+                    <p>
+                        The Reader
+                    </p>
+                </div>
+                <div className='nav' id={(nav === 0) ? "checked" : undefined} onClick={onClickNav0}>
+                    <p>
+                        홈
+                    </p>
+                </div>
+                <div className='nav' id={(nav === 1) ? "checked" : undefined} onClick={onClickNav1}>
+                    <p>
+                        소속 커뮤니티
+                    </p>
+                </div>
+                <div className='nav' id={(nav === 2) ? "checked" : undefined} onClick={onClickNav2}>
+                    <p>
+                        커뮤니티 찾기
+
+                    </p>
+                </div>
+                <div className="searchBlock">
+                    {/* <div className="searchBar">
+                        <input type="text" className="searchText" value={text} onChange={e => setText(e.target.value)}  placeholder="글쓴이, 제목, 내용 검색"/>
+                        <div className="searchButton" onClick={e => onClickSearch(e)}>
+                            <FontAwesomeIcon icon={faMagnifyingGlass}/>
+                        </div>
+                    </div> */}
+                </div>
+            </div>
         </div>
-        <ReviewList url="/"/>
+        <article>
+            {(nav === 0) ? <Home/> : undefined}
+        </article>
+        <Footer />
     </>
 }
 

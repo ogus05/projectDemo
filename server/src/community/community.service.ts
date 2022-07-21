@@ -24,54 +24,75 @@ export class CommunityService {
     ){}
 
 
-
-
-    //0. default, 1. info, 2. edit
-    async getCommunityByID(communityID: number, type: number){
+    async getCommunityInfo(communityID: number){
         try{
-            let qb = this.communityRepository.createQueryBuilder(`community`)
-            switch(type){
-                case 0:{
-                    qb = qb.select(['leaderNumber']);
-                    break;
-                } case 1:{
-                    qb = qb.select(['community.leaderNumber', 'community.image',
-                    'community.message', 'community.regDate']);
-                    break;
-                } case 2:{
-                    qb = qb.select(['community.name', 'community.isOpen', 
-                    'community.message']);
-                }
-            }
-            const community = await qb.where(`ID = :communityID`, {communityID})
+            const data = await this.communityRepository.createQueryBuilder('community')
+            .select(['community.name', 'community.message', 'community.regDate', 'leader.nickname', 'leader.number'])
+            .leftJoin('community.leader', 'leader')
+            .where('communityID = :keyCommunityID', {keyCommunityID: communityID})
             .getOne();
-            return community;
+            return data;
         } catch(e){
-            console.log ("getCommunityByID. " + e);
+            console.log('getCommunityInfo. ' + e);
+            throw e;
+        }
+    } 
+
+    async getCommunityEdit(communityID: number){
+        try{
+            const data = await this.communityRepository.createQueryBuilder(`community`)
+            .select(['community.name', 'community.message', 'community.isOpen', 'community.ID'])
+            .where('ID = :keyCommunityID', {keyCommunityID: communityID})
+            .getOne();
+            return data;
+        } catch(e){
+            console.log("getCommunityEdit. " + e);
             throw e;
         }
     }
 
-    async getCommunityIDByName(communityName: string){
+    async getCommunitySearchList(offset: number, limit: number){
         try{
-            const removeSpaceName = communityName.replace(' ', '');
-            const community = await this.communityRepository.createQueryBuilder('community')
-            .select('community.ID', 'ID')
-            .where("REPLACE(community.name, ' ', '') = :communityName", {communityName: removeSpaceName})
-            .getOne();
-            return community;
+            const communityList = await this.communityRepository.createQueryBuilder('community')
+            .select(['community.ID', 'community.name', 'community.message'])
+            .offset(offset)
+            .limit(limit)
+            .where('community.isOpen = 1')
+            .getManyAndCount();
+            return communityList;
         } catch(e){
-            console.log("getCommunityIDByName. " + e);
+            console.log("getCommunitySearchList. " + e);
             throw e;
         }
     }
 
+    async getCommunityUserList(communityID: number){
+        try{
+            const userList = await this.userRepository.createQueryBuilder('user')
+            .select(['user.nickname', 'user.number'])
+            .where('user.communityID = :keyCommunityID', {keyCommunityID: communityID})
+            .getManyAndCount();
+            return userList;
+        } catch(e){
+            console.log("getCommunityUserList. " + e);
+            throw e;
+        }
+    }
+    
+    async getCommunityApplyUserList(communityID: number){
+        const users = await this.applyCommunityRepository.createQueryBuilder('apply')
+        .leftJoin("apply.user", "user")
+        .select(["user.number", "user.nickname", "apply.communityID"])
+        .where('apply.communityID = :keyCommunityID', {keyCommunityID: communityID})
+        .getMany();
+        return users.map(user => user.user);
+    }
 
     async createCommunity(dto: PostCommunityDto){
-        if(await this.getCommunityIDByName(dto.name)){
+        if((await this.communityRepository.findOne({name: dto.name}))){
             throw new BadRequestException("존재하는 커뮤니티 이름입니다.");
         }
-        const user = await this.userService.getUserByNumber(dto.leaderNumber, false);
+        const user = await this.userService.getUserInfo(dto.leaderNumber);
         if(user.communityID !== 1) {
             throw new BadRequestException("가입한 커뮤니티가 존재합니다.");
         }
@@ -96,33 +117,16 @@ export class CommunityService {
             await qr.release();
         }
     }
-    
-    async getCommunityApplyUserList(communityID: number){
-        const users = await this.applyCommunityRepository.createQueryBuilder('apply')
-        .leftJoin("apply.user", "user")
-        .select(["user.number", "user.nickname", "apply.communityID"])
-        .where('apply.communityID = :keyCommunityID', {keyCommunityID: communityID})
-        .getMany();
-        return users.map(user => user.user);
-    }
 
-    async applyCommunity(dto: ApplyCommunityDto){
-        if((await this.userService.getUserByNumber(dto.number, false)).communityID !== 1){
+    async createApplyCommunity(dto: ApplyCommunityDto){
+        if((await this.userService.getUserCommunityInfo(dto.userNumber)).communityID !== 1){
             throw new BadRequestException("이미 커뮤니티에 가입했습니다.");
         }
-        await this.deleteCommunityApply(dto.ID, dto.number);
+        await this.applyCommunityRepository.delete({userNumber: dto.userNumber})
         await this.applyCommunityRepository.insert({
             communityID: dto.ID,
-            userNumber: dto.number,
+            userNumber: dto.userNumber,
         });
-    }
-
-    async deleteCommunityApply(communityID: number, number: number){
-        const affected = (await this.applyCommunityRepository.delete({
-            ID: communityID,
-            userNumber: number,
-        })).affected;
-        if(affected === 0) throw new BadRequestException("해당 유저는 커뮤니티 가입을 요청하지 않았습니다.");
     }
 
 
@@ -132,21 +136,10 @@ export class CommunityService {
         });
     }
 
-    async updateCommunityImage(communityID: number, filename: string){
-        await this.deleteImage(communityID);
-        await this.communityRepository.update(communityID, {
-            image: filename,
-        });
-    }
-
     async updateCommunityLeader(communityID: number, leaderNumber: number){
-        const user = await this.userService.getUserByNumber(leaderNumber, false);
-        if(user){
-            if(user.communityID !== communityID){
-                throw new BadRequestException("다른 커뮤니티의 유저는 리더가 될 수 없습니다.");
-            }
-        } else{
-            throw new BadRequestException("존재하지 않는 유저입니다.");
+        const user = await this.userService.getUserCommunityInfo(leaderNumber);
+        if(user && user.communityID !== communityID){
+            throw new BadRequestException("다른 커뮤니티의 유저는 리더가 될 수 없습니다.");
         }
         await this.communityRepository.update(communityID, {
             leaderNumber
@@ -155,17 +148,15 @@ export class CommunityService {
 
     async updateCommunityUser(userNumber: number, communityID: number = 1){
         if(communityID !== 1){
-            const applyCommunity = await this.applyCommunityRepository.findOne({
+            const affected = (await this.applyCommunityRepository.delete({
                 userNumber, communityID
-            });
-            if(!applyCommunity){
+            })).affected;
+            if(affected === 0){
                 throw new BadRequestException("가입하려는 유저의 요청이 필요합니다.");
-            } else{
-                await this.applyCommunityRepository.delete(applyCommunity);
             }
         }
         else{
-            if((await this.getCommunityByID(communityID, 0)).leaderNumber === userNumber){
+            if((await this.getCommunityInfo(communityID)).leader.number === userNumber){
                 throw new BadRequestException("리더는 커뮤니티를 탈퇴할 수 없습니다.");
             }
         }
@@ -198,16 +189,11 @@ export class CommunityService {
     }
 
     async deleteImage(communityID: number){
-        const DBfilename = (await this.communityRepository.createQueryBuilder('community')
-        .select(['community.image'])
-        .where('ID = :keyID', {keyID: communityID}).getOne()).image;
-        if(DBfilename !== this.configService.get("COMMUNITY_IMAGE")){
-            const DBfileDir = this.configService.get("MULTER_DEST") + DBfilename;
-            if(fs.existsSync(DBfileDir)){
-                fs.rm(DBfileDir, () => {});
-            } else{
-                console.log("파일이 존재하지 않아서 삭제가 불가능합니다. " + this.configService.get("MULTER_DEST") + DBfilename);
-            }
+        const DBfileDir = this.configService.get("MULTER_DEST_COMMUNITY") + communityID;
+        if(fs.existsSync(DBfileDir)){
+            fs.rm(DBfileDir, () => {});
+        } else{
+            console.log("파일이 존재하지 않아서 삭제가 불가능합니다. " + DBfileDir);
         }
     }
 }

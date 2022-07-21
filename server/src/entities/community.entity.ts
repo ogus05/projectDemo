@@ -20,12 +20,6 @@ export class Community{
     })
     leaderNumber: number;
     @Column({
-        type: "varchar",
-        default: 'community_default.jpg',
-        nullable: false,
-    })
-    image: string;
-    @Column({
         type: "tinyint",
         nullable: false,
         default: false,

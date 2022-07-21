@@ -1,0 +1,66 @@
+<div style="
+    height: 476px;
+    width: 452px;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 0px 150px 150px 100px;
+    justify-content: center;
+    align-items: center;
+    z-index: 3">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Noto+Sans');
+        *{
+            font-family: 'Noto Sans';
+        }
+    </style>
+    <img src="cid:mailPage"style="margin-top: 100%">
+    <div>
+        <div style="
+        font-size: 43px;
+        font-weight: 400;
+        text-align: center;
+        color: #FFFFFF;">
+            The Reader
+        </div>
+        <div style="
+        font-size: 18px;
+        font-weight: 400;
+        text-align: center;
+        color: #FFFFFF">
+            Today's reader Tommorow's leader
+        </div>
+    </div>
+    <div style="
+    font-size: 15px;
+    font-weight: 400;
+    text-align: center;
+    line-height: 25px;">
+        안녕하세요 {{userName}}님,<br/>
+        이메일 인증을 하고나면<br/>
+        The Reader 사이트를<br/>
+        원활하게 이용하실 수 있습니다.<br/>
+        아래의 이메일 인증 버튼을 눌러주세요.<br/>
+    </div>
+    <div style="
+    display: grid;
+    justify-content: center;
+    align-items: center;">
+        <a style="
+        height: 39px;
+        width: 131px;
+        background-color: #74603B;
+        line-height: 39px;
+        text-align: center;
+        color: #FFFFFF;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 400;
+        box-shadow: 0, 1px, 5px, rgba(0, 0, 0, 0.25);
+        border-radius: 3px;
+        display: block;
+        text-decoration: none;
+        " href="{{url}}">
+        이메일 인증
+        </a>
+    </div>  
+</div>

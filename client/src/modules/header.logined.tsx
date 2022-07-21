@@ -26,7 +26,6 @@ const Header = () => {
     }
     
     return <header>
-        <h1 id="title" onClick ={e => {location.href = '/'}}>The Reader</h1>
         <nav id="myLink">
             <div onClick={clickLogout}>
                 logout

@@ -1,0 +1,52 @@
+@import '../../modules/mixin/title.scss';
+@import '../../modules/mixin/card.scss';
+#main{
+    article{
+        .title{
+            @include title();
+        }
+        .card{
+            width: 1fr;
+            height: 670px;
+            background: #F5F6F7;
+            border: 1px solid #DADADA;
+            .communityList{
+                display: grid;
+                grid-template-columns: repeat(2, 500px);
+                grid-template-rows: repeat(5, 100px);
+                justify-content: center;
+                .community{
+                    display: grid;
+                    grid-template-columns: 100px 400px;
+                    grid-template-rows: 30px 40px 30px;
+                    cursor: pointer;
+                    .image{
+                        grid-row: 1 / 4;
+                        img{
+                            border-radius: 50%;
+                            height: 92px;
+                            width: 92px;
+                            object-fit: cover;
+                        }
+                    }
+                    .name{
+                        font-size: 18px;
+                        color: #232323;
+                        font-weight: 600;
+                        line-height: 22px;
+                    }
+                    .message{
+                        display:-webkit-box;
+                        -webkit-line-clamp:2;
+                        -webkit-box-orient:vertical;
+                        line-height:20px;
+                        overflow:hidden;
+                        text-overflow:ellipsis;
+                        font-size: 18px;
+                        font-weight: 400;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,18 +1,61 @@
+$reviewHeight: 200px;
+$reviewWidth: 200px;
+
 #main{
     .reviewList{
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        row-gap: 20px;
-        justify-content: space-between;
-        margin-top: 20px;
-        .review{
-            flex: 0 0 auto;
-            height: 240px;
-            width: 200px;
-            margin-left: 50px;
-            margin-right: 50px;
-            border: 1px black solid
+        grid-template-columns: repeat(6, $reviewHeight);
+        grid-template-rows: repeat(2, $reviewWidth);
+        gap: 10px 0;
+        justify-content: center;
+        align-items: center;
+        .reviewBlock{
+            position: relative;
+            cursor: pointer;
+            .number{
+                position: absolute;
+                z-index: 1;
+                font-weight: 700;
+                font-size: 25px;
+            }
+            .review{
+                width: $reviewWidth;
+                height: $reviewHeight;
+                display: grid;
+                justify-content: center;
+                align-items: center;
+                grid-template-columns: 1fr;
+                grid-template-rows: 140px 60px;
+                .cover{
+                    height: $reviewHeight - 60px;
+                    img{
+                        width: $reviewWidth;
+                        height: $reviewHeight - 70px;
+                        object-fit: contain;
+                    }
+                }
+                .information{
+                    font-size: 15px;
+                    display: grid;
+                    grid-template-rows: repeat(4, 15px);
+                    justify-content: center;
+                    :nth-child(1){
+                        font-weight: 600;
+                    }
+                    div{
+                        text-align: center;
+                    }
+                    .regDate{
+                        font-size: 12px;
+                    }
+                }
+            }
         }
+    }
+    .emptyReviewList{
+        text-align: center;
+        line-height: 400px;
+        font-size: 25px;
     }
 
 }

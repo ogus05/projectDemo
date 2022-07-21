@@ -1,0 +1,60 @@
+@import '../../modules/mixin/title.scss';
+body{
+
+}
+article{
+    .buttonBlock{
+        display: grid;
+        grid-template-columns: auto 200px;
+        .title{
+            @include title();
+        }
+        .swipe{
+            display: grid;
+            grid-template-columns: 100px 100px;
+            .leftBlock, .rightBlock{
+                width: 88px;
+                height: 38px;
+                background-color: #74603B;
+                color: #FFFFFF;
+                text-align: center;
+                line-height: 38px;
+                font-size: 14px;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+        }
+
+    }
+    .review{
+        display: grid;
+        grid-template-columns: 90%;
+        grid-template-rows: 170px auto;
+        background-color: #FFFFFF;
+        border: 1px solid #DADADA;
+        align-items: center;
+        justify-content: center;
+        .top{
+            height: 100%;
+            margin: auto 0;
+            display: grid;
+            grid-template-columns: 100%;
+            grid-template-rows: 40px 50px 20px;
+            align-items: center;
+                .reviewTitle{
+                    font-weight: 500;
+                    font-size: 30px;
+                    color: #454545;
+                }
+                .reviewInfo{
+                    font-weight: 500;
+                    font-size: 15px;
+                    color: #454545;
+                }
+            border-bottom: 0.3px solid #B1B1B1;
+        }
+        .text{
+            padding: 120px 60px;
+        }
+    }
+}

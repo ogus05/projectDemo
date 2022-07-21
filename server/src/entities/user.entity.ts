@@ -1,6 +1,4 @@
-import { UserRole } from "src/auth/roles/roles";
 import { Column, CreateDateColumn, Entity, Generated, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
-import { ApplyCommunity } from "./applyCommunity.entity";
 import { Comment } from "./comment.entity";
 import { Community } from "./community.entity";
 import { ConfirmMail } from "./confirmMail.entity";
@@ -38,14 +36,6 @@ export class User {
         nullable: true,
     })
     refreshJWT: string;
-    
-
-    @Column({
-        nullable: false,
-        type: "varchar",
-        default: "user_default.jpg",
-    })  
-    image: string;
 
     @Column({
         nullable: true,

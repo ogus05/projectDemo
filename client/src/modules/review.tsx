@@ -1,22 +1,43 @@
-
-export interface IReview {
-    bookTitle: string;
-    bookCover: string;
-    reviewTitle: string;
-    reviewerNickname: string;
-    reviewID: number;
-}
-
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { IReviewList } from "../interfaces/review.i";
 
 //TODO. background로 bookCover이미지 넣기
-export const Review = (review: IReview) => {
-
+export const Review = (props: {review: IReviewList}) => {
+    const [bookInfo, setBookInfo] = useState<any>('');
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        axios.get(`/review/book/info/${props.review.ISBN}`).then(res => {
+            let title: string = res.data.title;
+            title = title.substring(0, title.indexOf('('));
+            setBookInfo({
+                ...res.data,
+                title
+            });
+            setLoading(false)
+        });
+    }, [])
     return <>
+        {loading ? null : 
         <div className="review">
-            책 제목: {review.bookTitle}
-            리뷰 제목: {review.reviewTitle}
-            리뷰 작성자: {review.reviewerNickname}
-        </div>
+            <div className="cover">
+                <img src={bookInfo.thumbnail}/>
+            </div>
+            <div className="information">
+                <div>
+                    [{bookInfo.title}]{props.review.title}<br/>
+                </div>
+                <div>
+                    {props.review.community.name}<br/>
+                </div>
+                <div>
+                    {props.review.user.nickname}<br/>
+                </div>
+                <div className="regDate">
+                    {props.review.regDate}<br/>
+                </div>
+            </div>
+        </div>}
     </>
 }
 

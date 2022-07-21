@@ -1,14 +1,109 @@
+@import "../../modules/mixin/title.scss";
+@import '../../modules/mixin/card.scss';
 #user{
     height: 200px;
     border-bottom: 1px solid black;
 }
 
-nav {
-    text-align: center;
-    margin-bottom: 30px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    div {
-        border: 1px solid black;
+#main{
+    article{
+        .user{
+            position: relative;
+            width: 1fr;
+            height: 300px;
+            border: 1px solid #C8C6C6;
+            background-color: #FFFFFF;
+            display: grid;
+            grid-template-columns: 150px 250px 500px 300px;
+            grid-template-rows: repeat(1, 1fr);
+            align-items: center;
+            justify-content: center;
+            &Image{
+                .block{
+                    width: 110px;
+                    height: 110px;
+                    position: relative;
+                    img{
+                        width: 110px;
+                        height: 110px;
+                        object-fit: cover;
+                        border-radius: 50%;
+                    }
+                    .userImageEdit{
+                        z-index: 1;
+                        position: absolute;
+                        right: 0;
+                        bottom: 0;
+                        width: 30px;
+                        height: 30px;
+                        color: white;
+                        background-color: #525252;
+                        border-radius: 50%;
+                        display: grid;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                }
+            }
+            &Info{
+                .communityName{
+                    font-size: 25px;
+                    font-weight: 700;
+                }
+                .userNickname{
+                    font-size: 15px;
+                }
+            }
+            &Message{
+                padding-right: 100px;
+                display:-webkit-box;
+                -webkit-line-clamp:5;
+                -webkit-box-orient:vertical;
+                line-height:20px;
+                overflow:hidden;
+                white-space: pre-wrap;
+                text-overflow:ellipsis;
+                font-size: 18px;
+                font-weight: 400;
+            }
+            &Edit{
+                position: relative;
+                button{
+                    width: 100%;
+                    height: 50px;
+                    background-color: #FFFFFF;
+                    border: 1px solid #C4C4C4;
+                    border-radius: 10px;
+                    font-size: 18px;
+                    cursor: pointer;
+                }
+            }
+            .regDate{
+                color: #827D7D;
+                font-size: 14px;
+                position: absolute;
+                bottom: 50px;
+                right: 80px;
+            }
+        }
+        .userNav{
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(2, 310px);
+            & > div{
+                cursor: pointer;
+            }
+            #unChecked{
+                background-color: inherit;
+                color: #AEABAB;
+                border: 1px solid #AEABAB;
+            }
+            .title{
+                @include title();
+            }
+        }
+        .card{
+            @include card(650px);
+        }
     }
 }

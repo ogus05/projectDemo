@@ -1,0 +1,20 @@
+@import './mixin.scss';
+.login{
+    .image{
+        width: 300px;
+        text-align: center;
+        margin: auto;
+    }
+    form{
+        @include grid(100px, 3);
+        .userIdBlock, .passwordBlock {
+            @include block();
+        }
+        .submitBlock{
+            @include submitBlock();
+        }
+
+    }
+    
+   
+}

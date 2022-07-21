@@ -1,0 +1,14 @@
+.logo{
+    height: 200px;
+    display: grid;
+    align-items: center;
+    .logoBlock{
+        color: #524328;
+        font-family: 'pretendard';
+        font-style: normal;
+        font-size: 50px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-right: auto;
+    }
+}

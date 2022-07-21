@@ -1,56 +1,40 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
-import { IReview, Review } from "./review"
+import { IReviewList } from "../interfaces/review.i";
+import { Review } from "./review";
 import './scss/reviewList.scss';
 
 
-//TODO. offset과 limit ? 제외하기
-export const ReviewList = (props: {url: string, offset?: number, limit?: number}) => {
-    const [reviews, setReviews] = useState<IReview[]>([]);
+export const ReviewList = (props: {url: string, setCount: any}) => {
+    const [reviewList, setReviewList] = useState<IReviewList[]>([]);
     const getReviewList = () => {
-        setReviews([
-            {
-                bookTitle: '책 제목',
-                bookCover: '임시url',
-                reviewTitle: '리뷰 제목',
-                reviewerNickname: '리뷰 작성자',
-                reviewID: 1,
-            },
-            {
-                bookTitle: '책 제목',
-                bookCover: '임시url',
-                reviewTitle: '리뷰 제목',
-                reviewerNickname: '리뷰 작성자',
-                reviewID: 2,
-            },
-            {
-                bookTitle: '책 제목',
-                bookCover: '임시url',
-                reviewTitle: '리뷰 제목',
-                reviewerNickname: '리뷰 작성자',
-                reviewID: 3,
-            },
-            {
-                bookTitle: '책 제목',
-                bookCover: '임시url',
-                reviewTitle: '리뷰 제목',
-                reviewerNickname: '리뷰 작성자',
-                reviewID: 4,
-            },
-            {
-                bookTitle: '책 제목',
-                bookCover: '임시url',
-                reviewTitle: '리뷰 제목',
-                reviewerNickname: '리뷰 작성자',
-                reviewID: 5,
-            },
-        ]);
+        axios.get(props.url).then(res => {
+            setReviewList(res.data.reviewList.map((v, i) => {
+                const regDate = new Date(v.regDate);
+                v.regDate = `${regDate.getFullYear()}-${("00" + (regDate.getMonth() + 1)).slice(-2)}-${("00" + regDate.getDate()).slice(-2)}`
+                return v;
+            }));
+            props.setCount(res.data.count);
+        })
     }
     useEffect(() => {
         getReviewList();
-    },[]);
+    },[props.url]);
     return <>
+    {
+        Array.isArray(reviewList) && reviewList.length !== 0 ? 
         <div className="reviewList">
-            {reviews ? reviews.map((review: IReview) => <Review {...review} key={review.reviewID}/>) : null}
-        </div>
+            {reviewList.map((review: IReviewList, i) => {
+                return <div className="reviewBlock" key={i} onClick={e => location.href = `/review/page/info/${review.ID}`}>
+                        <div className="number">
+                            {i + 1}
+                        </div>
+                        <Review review={review} key={i}/>
+                    </div>
+        })}</div> : <div className="emptyReviewList">
+                등록된 리뷰가 존재하지 않습니다.
+            </div>
+
+    }
     </>
 }

@@ -14,11 +14,10 @@ export class RolesGuard implements CanActivate{
         if(!roles) return true;
         else{
             const userNumber = context.switchToHttp().getRequest().user.number;
-            const user = await this.userService.getUserByNumber(userNumber, false);
+            const user = await this.userService.getUserInfo(userNumber);
             if(user.role < roles){
                 throw new RoleException(roles);
             } else{
-                console.log(22);
                 return true;
             }
         }
